@@ -1497,6 +1497,9 @@ textarea{
       display:block
   }
 }
+
+
+
 @media screen and (max-width: 640px){
   #wrap,footer{
       padding:0 24px
@@ -1641,5 +1644,35 @@ textarea{
   }
   #content .blocks h2:first-child{
       margin-top:0
+  }
+}
+
+/* added by MQ */
+.bloco {
+  background-color: whitesmoke;
+  border-radius: 2em;
+  padding: 1em;
+  margin: 2em 0;
+}
+
+h3 {
+    font-variant: small-caps;
+    text-align: center;
+    border-bottom: 1px solid gray;
+    padding: 0.5em;
+    margin-top: 0;
+}
+
+@media screen and (min-width: 641px){
+  .colonne{
+    width: 49%;
+  }
+
+  .leftCol{
+    float: left;
+  }
+
+  .rightCol{
+    float: right;
   }
 }
