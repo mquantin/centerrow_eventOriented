@@ -1,6 +1,8 @@
 # Center Row event oriented
 
-This is a fork of the Center Row theme v1.7.4
+This is a fork of the [Center Row theme](https://github.com/omeka-s-themes/centerrow) v1.7.4
+Split at commit 0ac696972bfffd13e5b407bad34ef886ba41afa7
+
 It is related to the feature asked in the omeka forum: https://forum.omeka.org/t/feature-request-show-some-linked-items-in-public-item-page/15914
 
 ## Content

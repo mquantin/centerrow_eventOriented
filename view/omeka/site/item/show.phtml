@@ -115,8 +115,6 @@ $itemSetExists = (count($itemSets) > 0);
 <!-- subject values printing -->
 <?php if ($subjectValues): ?>
     <div id="item-linked" >
-        <h2>Évènements liés au cycle de vie</h2>
-
         <?php 
         function writeEvent($classId, $item) {
             foreach ($item->subjectValues() as $term => $subjectValues) {
