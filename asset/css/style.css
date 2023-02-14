@@ -1663,6 +1663,11 @@ h3 {
     margin-top: 0;
 }
 
+.itemClass{
+  width: 100%;
+  display: inline-block;
+}
+
 @media screen and (min-width: 641px){
   .colonne{
     width: 49%;
