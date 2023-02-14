@@ -100,7 +100,7 @@ $itemSetExists = (count($itemSets) > 0);
     </div>
 </div>
 
-</div>
+</div><!-- column div closing -->
 
 <div class="colonne rightCol">
 
@@ -109,43 +109,43 @@ $itemSetExists = (count($itemSets) > 0);
     $page = $this->params()->fromQuery('page', 1);
     $property = $this->params()->fromQuery('property');
     $subjectValues = $item->displaySubjectValues($page, 25, $property);
+
+    //todo: continue create an ui hook for the ressources class to display
+    //todo: comprendre comment récuperer les classes filles d'une classe pour utiliser les classes E63_BeginningOfExistence E64_endOfE et E7_activity
+    function writeEvent($classTerm, $item) {
+        foreach ($item->subjectValues() as $term => $subjectValues) {
+            foreach ($subjectValues as $subjectValue) {
+                //todo: ordonner finement ensuite par date dans chaque catégorie 
+                $subjectResource = $subjectValue->resource();
+                $subjectProperty = $subjectValue->property();
+                $subjectResourceClass = $subjectResource->resourceClass()->term();
+                if ($subjectResourceClass == $classTerm) {
+                    //echo $subjectResourceClass;
+                    ?>
+                    <div class="bloco">
+                        <?php
+                        echo sprintf('<h3>%s</h3>', $subjectResource->displayResourceClassLabel());
+                        echo $subjectResource->displayValues();
+                        ?>
+                    </div>
+                    <?php
+                }
+            }
+        }
+    };
 ?>
 
 <!-- subject values printing -->
-<!-- subject values printing -->
+
 <?php if ($subjectValues): ?>
     <div id="item-linked" >
         <?php 
-        function writeEvent($classId, $item) {
-            foreach ($item->subjectValues() as $term => $subjectValues) {
-                foreach ($subjectValues as $subjectValue) {
-                    //todo: ordonner finement ensuite par date dans chaque catégorie 
-                    $subjectResource = $subjectValue->resource();
-                    $subjectProperty = $subjectValue->property();
-                    $subjectResourceClass = $subjectResource->resourceClass()->id();
-                    if ($subjectResourceClass == $classId) {
-                        //echo $subjectResourceClass;
-                        ?>
-                        <div class="bloco">
-                            <?php
-                            echo sprintf('<h3>%s</h3>', $subjectResource->displayResourceClassLabel());
-                            echo $subjectResource->displayValues();
-                            ?>
-                        </div>
-                        <?php
-                    }
-                }
-            }
-        };
-
-        //todo: continue create an ui hook for the ressources class to display
-        //todo: comprendre comment récuperer les classes filles d'une classe pour utiliser les classes E63_BeginningOfExistence E64_endOfE et E7_activity
-        
-        writeEvent(153, $item);//production
-        writeEvent(152, $item);//modification
+        writeEvent('crm:E12_Production', $item);//production
+        writeEvent('crm:E11_Modification', $item);//modification
         ?>
     </div>
 <?php endif; ?>
-</div>
+
+</div><!-- column div closing -->
 
 <?php $this->trigger('view.show.after'); ?>
