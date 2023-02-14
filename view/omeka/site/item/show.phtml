@@ -11,11 +11,16 @@ if ($embedMediaSetting == 1) {
 } else {
     $otherMedia = $itemMedia;
 }
+
+//queries for the subject values (inverse properties): events related to item in cidoc crm
+$page = $this->params()->fromQuery('page', 1);
+$property = $this->params()->fromQuery('property');
+$subjectValues = $item->displaySubjectValues($page, 25, $property);
 ?>
 
 <!-- title of the ressource -->
 <?php echo $this->pageTitle($item->displayTitle(), 2); ?> 
-Un item de type <?php echo $item->resourceClass()->vocabulary()->prefix() ?>:<?php echo $this->translate($item->displayResourceClassLabel()); ?>
+<span class= "itemClass">Une entrée de type <?php echo $item->resourceClass()->vocabulary()->prefix() ?>:<?php echo $this->translate($item->displayResourceClassLabel()); ?></span>
 
 
 <!-- the images -->
@@ -26,7 +31,8 @@ Un item de type <?php echo $item->resourceClass()->vocabulary()->prefix() ?>:<?p
 
 
 
-<div class="colonne leftCol">
+<div class="<?php if($subjectValues){echo"colonne leftCol";}?>">
+<!-- note: no columns if nothing in the second column -->
 
 <!-- all the properties -->
 <div class="bloco">
@@ -106,36 +112,34 @@ $itemSetExists = (count($itemSets) > 0);
 
 <div class="colonne rightCol">
 
-<!-- queries for the subject values (inverse properties) -->
-<?php
-    $page = $this->params()->fromQuery('page', 1);
-    $property = $this->params()->fromQuery('property');
-    $subjectValues = $item->displaySubjectValues($page, 25, $property);
 
-    //todo: continue create an ui hook for the ressources class to display
-    //todo: comprendre comment récuperer les classes filles d'une classe pour utiliser les classes E63_BeginningOfExistence E64_endOfE et E7_activity
-    function writeEvent($classTerm, $displayTerm, $item) {
-        foreach ($item->subjectValues() as $term => $subjectValues) {
-            foreach ($subjectValues as $subjectValue) {
-                //todo: ordonner finement ensuite par date dans chaque catégorie 
-                $subjectResource = $subjectValue->resource();
-                $subjectProperty = $subjectValue->property();
-                $subjectResourceClass = $subjectResource->resourceClass()->term();
-                if ($subjectResourceClass == $classTerm) {
-                    //echo $subjectResourceClass;
-                    ?>
-                    <div class="bloco">
-                        <?php
-                        echo sprintf('<h3>%s</h3>', $displayTerm);
-                        // echo sprintf('<h3>%s</h3>', $subjectResource->displayResourceClassLabel());
-                        echo $subjectResource->displayValues();
-                        ?>
-                    </div>
+<!-- function to build event display -->
+<?php
+//todo: class inheritance with external data
+//todo: ability to get the next class (e.g.: Creation -> DesignOrProcedure -> HumanMadeObjet : we need to reach Creation item)
+function writeEvent($classTerm, $displayTerm, $item) {
+    foreach ($item->subjectValues() as $term => $subjectValues) {
+        foreach ($subjectValues as $subjectValue) {
+            //todo: ordonner finement ensuite par date dans chaque catégorie 
+            $subjectResource = $subjectValue->resource();
+            $subjectProperty = $subjectValue->property();
+            $subjectResourceClass = $subjectResource->resourceClass()->term();
+            if ($subjectResourceClass == $classTerm) {
+                //echo $subjectResourceClass;
+                ?>
+                <div class="bloco">
                     <?php
-                }
+                    echo sprintf('<h3>%s</h3>', $displayTerm);
+                    // echo sprintf('<h3>%s</h3>', $subjectResource->displayResourceClassLabel());
+                    $options = array('viewName' => 'common/resource-values_event-in-item',);
+                    echo $subjectResource->displayValues($options);
+                    ?>
+                </div>
+                <?php
             }
         }
-    };
+    }
+};
 ?>
 
 <!-- subject values printing -->
@@ -143,9 +147,13 @@ $itemSetExists = (count($itemSets) > 0);
 <?php if ($subjectValues): ?>
     <div id="item-linked" >
         <?php 
-        writeEvent('crm:E12_Production', 'Production', $item);
-        writeEvent('crm:E11_Modification', 'Modification', $item);
-
+        //todo: create an ui hook for the ressources class to display
+        if ($item->resourceClass()->term() == 'crm:E22_Human-Made_Object'){
+            
+            writeEvent('crm:E12_Production', 'Production', $item);
+            writeEvent('crm:E11_Modification', 'Modification', $item);
+            writeEvent('crm:E8_Acquisition', 'Acquisition', $item);
+        }
         ?>
     </div>
 <?php endif; ?>
