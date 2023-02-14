@@ -15,7 +15,12 @@ if ($this->status()->isSiteRequest()) {
     $showValueAnnotations = true;
 }
 ?>
+<?php
+$propertiesNotDisplayed = array('skos:prefLabel', 'crm:P31_has_modified', 'crm:P108_has_produced');
+?>
+
 <?php foreach ($values as $term => $propertyData): ?>
+    <?php if (in_array($propertyData['property']->term(), $propertiesNotDisplayed) == false) : ?>
     <div class="property" id=<?php echo $propertyData['property']->term(); ?>>
         <h4>
         <?php if ($propertyData['alternate_label']): ?>
@@ -23,12 +28,14 @@ if ($this->status()->isSiteRequest()) {
         <?php else: ?>
         <?php echo $escape($translate($propertyData['property']->label())); ?>
         <?php endif; ?>
+
         <?php if ('term' === $labelInfo): ?>
         <span class="field-term">(<?php echo $escape($propertyData['property']->term()); ?>)</span>
         <?php elseif ('vocab' === $labelInfo): ?>
         <span class="field-term">(<?php echo $escape($propertyData['property']->vocabulary()->label()); ?>)</span>
-        <?php endif; ?>
+        <?php endif; ?>   
         </h4>
+
         <div class="values">
         <?php foreach ($propertyData['values'] as $value): ?>
             <?php
@@ -66,4 +73,5 @@ if ($this->status()->isSiteRequest()) {
         <?php endforeach; ?>
         </div>
     </div>
+    <?php endif; ?>
 <?php endforeach; ?>

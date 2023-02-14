@@ -14,7 +14,9 @@ if ($embedMediaSetting == 1) {
 ?>
 
 <!-- title of the ressource -->
-<?php echo $this->pageTitle($item->displayTitle(), 2); ?>
+<?php echo $this->pageTitle($item->displayTitle(), 2); ?> 
+Un item de type <?php echo $item->resourceClass()->vocabulary()->prefix() ?>:<?php echo $this->translate($item->displayResourceClassLabel()); ?>
+
 
 <!-- the images -->
 <?php if (isset($lightMedia)): ?>
@@ -28,7 +30,7 @@ if ($embedMediaSetting == 1) {
 
 <!-- all the properties -->
 <div class="bloco">
-    <h3>L'objet</h3>
+    <h3>Item</h3>
     <?php $this->trigger('view.show.before'); ?>
     <?php echo $item->displayValues(); ?>
 </div>
@@ -87,13 +89,13 @@ $itemSetExists = (count($itemSets) > 0);
         </div>
     </div>
     <div id="ficheCreate" class="property">
-        <h4>date de creation</h4>
+        <h4>Date de creation</h4>
         <div class="values">
             <div class="value"><?php echo $escape($this->i18n()->dateFormat($item->created())); ?></div>
         </div>
     </div>
     <div id="ficheCreate" class="property">
-        <h4>date modification</h4>
+        <h4>Date modification</h4>
         <div class="values">
             <div class="value"><?php echo $escape($this->i18n()->dateFormat($item->modified())); ?></div>
         </div>
@@ -112,7 +114,7 @@ $itemSetExists = (count($itemSets) > 0);
 
     //todo: continue create an ui hook for the ressources class to display
     //todo: comprendre comment récuperer les classes filles d'une classe pour utiliser les classes E63_BeginningOfExistence E64_endOfE et E7_activity
-    function writeEvent($classTerm, $item) {
+    function writeEvent($classTerm, $displayTerm, $item) {
         foreach ($item->subjectValues() as $term => $subjectValues) {
             foreach ($subjectValues as $subjectValue) {
                 //todo: ordonner finement ensuite par date dans chaque catégorie 
@@ -124,7 +126,8 @@ $itemSetExists = (count($itemSets) > 0);
                     ?>
                     <div class="bloco">
                         <?php
-                        echo sprintf('<h3>%s</h3>', $subjectResource->displayResourceClassLabel());
+                        echo sprintf('<h3>%s</h3>', $displayTerm);
+                        // echo sprintf('<h3>%s</h3>', $subjectResource->displayResourceClassLabel());
                         echo $subjectResource->displayValues();
                         ?>
                     </div>
@@ -140,8 +143,9 @@ $itemSetExists = (count($itemSets) > 0);
 <?php if ($subjectValues): ?>
     <div id="item-linked" >
         <?php 
-        writeEvent('crm:E12_Production', $item);//production
-        writeEvent('crm:E11_Modification', $item);//modification
+        writeEvent('crm:E12_Production', 'Production', $item);
+        writeEvent('crm:E11_Modification', 'Modification', $item);
+
         ?>
     </div>
 <?php endif; ?>
