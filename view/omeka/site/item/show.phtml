@@ -124,12 +124,13 @@ function writeEvent($classTerm, $displayTerm, $item) {
             $subjectResource = $subjectValue->resource();
             $subjectProperty = $subjectValue->property();
             $subjectResourceClass = $subjectResource->resourceClass()->term();
+            $subjectResourceURL = $subjectResource->url();
             if ($subjectResourceClass == $classTerm) {
                 //echo $subjectResourceClass;
                 ?>
                 <div class="bloco">
                     <?php
-                    echo sprintf('<h3>%s</h3>', $displayTerm);
+                    echo sprintf('<h3><a href=%s>%s</a></h3>', $subjectResourceURL, $displayTerm);
                     // echo sprintf('<h3>%s</h3>', $subjectResource->displayResourceClassLabel());
                     $options = array('viewName' => 'common/resource-values_event-in-item',);
                     echo $subjectResource->displayValues($options);
