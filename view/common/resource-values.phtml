@@ -16,7 +16,8 @@ if ($this->status()->isSiteRequest()) {
 }
 ?>
 <?php
-$propertiesNotDisplayed = array('skos:prefLabel');
+$propertiesNotDisplayed = array('skos:prefLabel', 'crm:P70i_is_documented_in', 'rdfs:seeAlso');
+//'crm:P70i_is_documented_in', 'rdfs:seeAlso' are called in separated bloco "see Also"
 ?>
 
 <?php foreach ($values as $term => $propertyData): ?>

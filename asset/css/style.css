@@ -1669,15 +1669,14 @@ h3 {
 }
 
 @media screen and (min-width: 641px){
-  .colonne{
-    width: 49%;
-  }
 
   .leftCol{
+    width: 59%;
     float: left;
   }
 
   .rightCol{
+    width: 40%;
     float: right;
   }
 }

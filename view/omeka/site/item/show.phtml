@@ -47,10 +47,36 @@ $subjectValues = $item->displaySubjectValues($page, 25, $property);
 $otherMediaExists =  (isset($otherMedia) && (count($otherMedia) > 0));
 $itemSets = $item->itemSets();
 $itemSetExists = (count($itemSets) > 0);
+
+$termsToDisplay = array('rdfs:seeAlso', 'crm:P70i_is_documented_in',);
+$allValues = $item->values();
+$anyOfThem = ($otherMediaExists || $itemSetExists || array_intersect($termsToDisplay, array_keys($allValues)));
+
+//uses a value representation + data in array as given by the values() function of AbstractResourceEntityRepresentation
+function writeValueofTerms($termsArray, $itemRep){
+    $allValues = $itemRep->values();
+    foreach($termsArray as $term){
+        $propValue = $allValues[$term];
+        if ($propValue){
+            ?>
+            <div class="property ">
+                    <h4><?php echo $propValue['alternate_label']; ?></h4>
+                    <div class="values">
+                        <?php foreach ($propValue['values'] as $value): ?>
+                            <div class="value"><?php echo $value->asHtml(); ?></div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php
+        };
+    };
+};
 ?>
-<?php if ($otherMediaExists || $itemSetExists): ?>
+
+
+<?php if ($anyOfThem): ?>
     <div class="bloco">
-        <h3>Voir aussi</h3>
+        <h3>Éléments associés</h3>
 <?php endif; ?>
 
     <!-- media other than images -->
@@ -70,7 +96,7 @@ $itemSetExists = (count($itemSets) > 0);
     <!-- item set -->
     <?php if($itemSetExists): ?>
         <div class="property ">
-            <h4> Collection(s) contenant l'objet</h4>
+            <h4>Collection(s) contenant l'objet</h4>
             <div class="values">
                 <?php foreach ($item->itemSets() as $itemSet): ?>
                 <div class="value"><a href="<?php echo $escape($itemSet->url()); ?>"><?php echo $itemSet->displayTitle(); ?></a></div>
@@ -79,7 +105,10 @@ $itemSetExists = (count($itemSets) > 0);
         </div>
     <?php endif; ?>
 
-<?php if ($otherMediaExists || $itemSetExists): ?>
+    <!-- display props -->
+    <?php writeValueofTerms($termsToDisplay, $item) ?>
+
+<?php if ($anyOfThem): ?>
     </div>
 <?php endif; ?>
 
@@ -148,12 +177,21 @@ function writeEvent($classTerm, $displayTerm, $item) {
 <?php if ($subjectValues): ?>
     <div id="item-linked" >
         <?php 
+        $itemClass = $item->resourceClass()->term();
         //todo: create an ui hook for the ressources class to display
-        if ($item->resourceClass()->term() == 'crm:E22_Human-Made_Object'){
+        //todo: reuse the function created for seeAlso and documented_in -> write some props of some events.
+        //      for ex: people -(production)> object+date+lieux 
+        //todo: fetch third degree items for object <- (production -> designOrProcedure) <- creation  
+        if ($itemClass === 'crm:E22_Human-Made_Object'){
             
             writeEvent('crm:E12_Production', 'Production', $item);
             writeEvent('crm:E11_Modification', 'Modification', $item);
             writeEvent('crm:E8_Acquisition', 'Acquisition', $item);
+        }
+        elseif ($itemClass == ('crm:E21_Person' ||'crm:E39_Actor' || 'crm:E74_Group' )){
+            writeEvent('crm:E12_Production', 'A produit', $item);
+            writeEvent('crm:E11_Modification', 'A modifié', $item);
+            writeEvent('crm:E8_Acquisition', 'Acqui', $item);
         }
         ?>
     </div>
