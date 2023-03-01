@@ -50,7 +50,7 @@ $itemSetExists = (count($itemSets) > 0);
 
 $termsToDisplay = array('rdfs:seeAlso', 'crm:P70i_is_documented_in',);
 $allValues = $item->values();
-$anyOfThem = ($otherMediaExists || $itemSetExists || array_intersect($termsToDisplay, array_keys($allValues)));
+$anyOfAddInfo = ($otherMediaExists || $itemSetExists || array_intersect($termsToDisplay, array_keys($allValues)));
 
 //uses a value representation + data in array as given by the values() function of AbstractResourceEntityRepresentation
 function writeValueofTerms($termsArray, $itemRep){
@@ -74,10 +74,9 @@ function writeValueofTerms($termsArray, $itemRep){
 ?>
 
 
-<?php if ($anyOfThem): ?>
+<?php if ($anyOfAddInfo): ?>
     <div class="bloco">
         <h3>Éléments associés</h3>
-<?php endif; ?>
 
     <!-- media other than images -->
     <?php if($otherMediaExists): ?>
@@ -108,7 +107,6 @@ function writeValueofTerms($termsArray, $itemRep){
     <!-- display props -->
     <?php writeValueofTerms($termsToDisplay, $item) ?>
 
-<?php if ($anyOfThem): ?>
     </div>
 <?php endif; ?>
 
