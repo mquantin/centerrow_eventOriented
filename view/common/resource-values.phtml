@@ -19,6 +19,7 @@ if ($this->status()->isSiteRequest()) {
 $propertiesNotDisplayed = array('skos:prefLabel', 'crm:P70i_is_documented_in', 'rdfs:seeAlso');
 //'crm:P70i_is_documented_in', 'rdfs:seeAlso' are called in separated bloco "see Also"
 //prefLabel is page header
+$expandableTerms = array('dcterms:description', 'rdaa:P50113');
 ?>
 
 <?php foreach ($values as $term => $propertyData): ?>
@@ -53,7 +54,7 @@ $propertiesNotDisplayed = array('skos:prefLabel', 'crm:P70i_is_documented_in', '
             } elseif ('uri' == $valueType) {
                 $classValue[] = 'uri';
             };
-            if ($propertyData['property']->term() ==  'dcterms:description'){
+            if (in_array($propertyData['property']->term(), $expandableTerms)) {
                 $classContent[] = 'smalldesc';
                 $isExpandable = true;
             };
@@ -71,7 +72,7 @@ $propertiesNotDisplayed = array('skos:prefLabel', 'crm:P70i_is_documented_in', '
                 <span class="<?php echo implode(' ', $classContent); ?>"><?php echo $filterLocale ? $value->asHtml($lang) : $value->asHtml(); ?></span>
 
                 <?php if ($isExpandable): ?>
-                <label for="expend"><?php echo $this->escapeHtml($translate('Read more')); ?>...</label>
+                <label for="expend"><?php echo $this->escapeHtml($translate('Lire plus')); ?>...</label>
                 <?php endif; ?>
 
                 

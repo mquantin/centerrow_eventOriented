@@ -12,6 +12,32 @@ if ($embedMediaSetting == 1) {
     $otherMedia = $itemMedia;
 }
 
+//linked event to display
+// $events = array(
+//     'terms' =>          array('crm:E12_Production',     'crm:E11_Modification',     'crm:E8_Acquisition'),
+//     'agentDisplay' =>   array('A produit',              'A modifié',                'A acquis'),//false prevent displaying
+//     'objectDisplay' =>  array('Production',             'Modification',             'Acquisition'),//false prevent displaying
+// );
+
+// $itemClass = $item->resourceClass()->term();
+// if ($itemClass === 'crm:E22_Human-Made_Object'){$itemCat = 'objectDisplay'}
+// elseif ($itemClass == ('crm:E21_Person' ||'crm:E39_Actor' || 'crm:E74_Group' )){$itemCat = 'agentDisplay'};
+
+// for($i=0; $i<count($events['terms'])-1; $i++) {
+//     $stringToDisplay = $events[$itemCat][$i];
+//     if ($stringToDisplay){
+//         $loookupClass = $events['terms'][$i];
+
+//     }
+// }
+
+// foreach ($item->subjectValues() as $term => $subjectValues) {
+//     foreach ($subjectValues as $subjectValue) {
+//         $subjectResource = $subjectValue->resource();
+
+
+
+
 //queries for the subject values (inverse properties): events related to item in cidoc crm
 $page = $this->params()->fromQuery('page', 1);
 $property = $this->params()->fromQuery('property');
@@ -19,10 +45,14 @@ $subjectValues = $item->displaySubjectValues($page, 25, $property);
 ?>
 
 <!-- title of the ressource -->
-<?php echo $this->pageTitle($item->displayTitle(), 2); ?> 
-<span class= "itemClass">
-    Une entrée de type <?php echo $item->resourceClass()->vocabulary()->prefix() ?>:<?php echo $this->translate($item->displayResourceClassLabel()); ?>
-</span>
+<div class= "title">
+    <h2> <?php echo $item->displayTitle(); ?> </h2>
+    <span class= "itemClass">
+        Un item de type <?php echo $item->resourceClass()->vocabulary()->prefix() ?>:<?php echo $this->translate($item->displayResourceClassLabel()); ?>
+    </span>
+
+</div>
+
 
 
 <!-- the images -->

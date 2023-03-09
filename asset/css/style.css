@@ -1665,10 +1665,7 @@ h3 {
     margin-top: 0;
 }
 
-.itemClass{
-  width: 100%;
-  display: inline-block;
-}
+
 
 @media screen and (min-width: 641px){
 
@@ -1711,5 +1708,17 @@ label:hover {
 
 .columnTitle{
   text-align: center;
-  
+
+}
+
+.title{
+  margin: 24px 0;
+}
+
+.title > h2 {
+  margin: 0;
+}
+
+.itemClass{
+
 }
