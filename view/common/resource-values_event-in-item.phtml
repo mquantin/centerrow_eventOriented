@@ -16,7 +16,7 @@ if ($this->status()->isSiteRequest()) {
 }
 ?>
 <?php
-$propertiesNotDisplayed = array('skos:prefLabel', 'crm:P31_has_modified', 'crm:P108_has_produced', 'crm:P24_transferred_title_of', 'crm:P70i_is_documented_in', 'rdfs:seeAlso');
+$propertiesNotDisplayed = array('skos:prefLabel', 'dcterms:description', 'crm:P31_has_modified', 'crm:P108_has_produced', 'crm:P24_transferred_title_of', 'crm:P70i_is_documented_in', 'rdfs:seeAlso');
 ?>
 
 <?php foreach ($values as $term => $propertyData): ?>

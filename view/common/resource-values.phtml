@@ -18,6 +18,7 @@ if ($this->status()->isSiteRequest()) {
 <?php
 $propertiesNotDisplayed = array('skos:prefLabel', 'crm:P70i_is_documented_in', 'rdfs:seeAlso');
 //'crm:P70i_is_documented_in', 'rdfs:seeAlso' are called in separated bloco "see Also"
+//prefLabel is page header
 ?>
 
 <?php foreach ($values as $term => $propertyData): ?>
@@ -43,20 +44,39 @@ $propertiesNotDisplayed = array('skos:prefLabel', 'crm:P70i_is_documented_in', '
             $valueType = $value->type();
             $valueLang = $value->lang();
             $valueAnnotation = $value->valueAnnotation();
-            $class = ['value'];
+            $classValue = ['value'];
+            $classContent = ['value-content'];
+            $isExpandable = false;
             if ('resource' == $valueType || strpos($valueType, 'resource') !== false) {
-                $class[] = 'resource';
-                $class[] = $escape($value->valueResource()->resourceName());
+                $classValue[] = 'resource';
+                $classValue[] = $escape($value->valueResource()->resourceName());
             } elseif ('uri' == $valueType) {
-                $class[] = 'uri';
-            }
+                $classValue[] = 'uri';
+            };
+            if ($propertyData['property']->term() ==  'dcterms:description'){
+                $classContent[] = 'smalldesc';
+                $isExpandable = true;
+            };
             ?>
             <?php if ((!$filterLocale) || ($valueLang == '') || (strcasecmp($valueLang, $lang) == 0)): ?>
-            <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($valueLang); ?>">
+            <div class="<?php echo implode(' ', $classValue); ?>" lang="<?php echo $escape($valueLang); ?>">
                 <?php if ($showLocale && $valueLang): ?>
                 <span class="language"><?php echo $valueLang; ?></span>
                 <?php endif; ?>
-                <span class="value-content"><?php echo $filterLocale ? $value->asHtml($lang) : $value->asHtml(); ?></span>
+
+                <?php if ($isExpandable): ?>
+                <input type="checkbox" id="expend" />
+                <?php endif; ?>
+
+                <span class="<?php echo implode(' ', $classContent); ?>"><?php echo $filterLocale ? $value->asHtml($lang) : $value->asHtml(); ?></span>
+
+                <?php if ($isExpandable): ?>
+                <label for="expend"><?php echo $this->escapeHtml($translate('Read more')); ?>...</label>
+                <?php endif; ?>
+
+                
+
+
                 <?php if(!$value->isPublic()): ?>
                     <span class="o-icon-private" aria-role="tooltip" title="<?php echo $this->escapeHtml($translate('Private')); ?>" aria-label="<?php echo $this->escapeHtml($translate('Private')); ?>"></span>
                 <?php endif; ?>

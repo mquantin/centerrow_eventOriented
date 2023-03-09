@@ -1682,3 +1682,27 @@ h3 {
     float: right;
   }
 }
+
+/* handling description expand / collapse */
+#expend {
+  display:none;  
+}
+
+#expend + .smalldesc {
+  max-height:100px;
+  overflow:hidden;
+  transition:all .3s ease;
+}
+
+#expend:checked + .smalldesc {
+  max-height:1000px;  
+}
+
+label {
+  text-decoration:underline;
+  cursor:pointer;
+}
+
+label:hover {
+  text-decoration:none;  
+}
