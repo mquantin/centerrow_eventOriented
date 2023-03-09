@@ -911,7 +911,7 @@ textarea{
   #itemfiles{
       margin-bottom:24px;
       height:0;
-      padding-bottom:50vh
+      padding-bottom:70vh
   }
   #itemfiles li{
       display:none
@@ -1654,7 +1654,7 @@ textarea{
   background-color: whitesmoke;
   border-radius: 2em;
   padding: 1em;
-  margin: 2em 0;
+  margin: 1em 0 2em 0;
 }
 
 h3 {
@@ -1675,6 +1675,8 @@ h3 {
   .leftCol{
     width: 59%;
     float: left;
+    padding-right: 1%;
+    border-right: dashed 1px black;
   }
 
   .rightCol{
@@ -1705,4 +1707,9 @@ label {
 
 label:hover {
   text-decoration:none;  
+}
+
+.columnTitle{
+  text-align: center;
+  
 }

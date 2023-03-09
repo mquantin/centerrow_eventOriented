@@ -20,7 +20,9 @@ $subjectValues = $item->displaySubjectValues($page, 25, $property);
 
 <!-- title of the ressource -->
 <?php echo $this->pageTitle($item->displayTitle(), 2); ?> 
-<span class= "itemClass">Une entrée de type <?php echo $item->resourceClass()->vocabulary()->prefix() ?>:<?php echo $this->translate($item->displayResourceClassLabel()); ?></span>
+<span class= "itemClass">
+    Une entrée de type <?php echo $item->resourceClass()->vocabulary()->prefix() ?>:<?php echo $this->translate($item->displayResourceClassLabel()); ?>
+</span>
 
 
 <!-- the images -->
@@ -31,13 +33,13 @@ $subjectValues = $item->displaySubjectValues($page, 25, $property);
 
 
 
-<div class="<?php if($subjectValues){echo"colonne leftCol";}?>">
-<!-- note: no columns if nothing in the second column -->
+<div class="colonne leftCol">
+<div class="columnTitle">
+    À propos de cet item
+</div>
 
 <!-- all the properties -->
 <div class="bloco">
-    <h3>Item</h3>
-    <?php $this->trigger('view.show.before'); ?>
     <?php echo $item->displayValues(); ?>
 </div>
 
@@ -138,7 +140,9 @@ function writeValueofTerms($termsArray, $itemRep){
 </div><!-- column div closing -->
 
 <div class="colonne rightCol">
-
+<div class="columnTitle">
+    Évenements liés a cet item
+</div>
 
 <!-- function to build event display -->
 <?php
