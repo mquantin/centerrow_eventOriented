@@ -12,36 +12,28 @@ if ($embedMediaSetting == 1) {
     $otherMedia = $itemMedia;
 }
 
-//linked event to display
-// $events = array(
-//     'terms' =>          array('crm:E12_Production',     'crm:E11_Modification',     'crm:E8_Acquisition'),
-//     'agentDisplay' =>   array('A produit',              'A modifié',                'A acquis'),//false prevent displaying
-//     'objectDisplay' =>  array('Production',             'Modification',             'Acquisition'),//false prevent displaying
-// );
 
-// $itemClass = $item->resourceClass()->term();
-// if ($itemClass === 'crm:E22_Human-Made_Object'){$itemCat = 'objectDisplay'}
-// elseif ($itemClass == ('crm:E21_Person' ||'crm:E39_Actor' || 'crm:E74_Group' )){$itemCat = 'agentDisplay'};
+$displayEvents = array(
+    'crm:E12_Production' => 'Production',
+    'crm:E11_Modification' => 'Modification',
+    'crm:E8_Acquisition' => 'Acquisition',
+);
 
-// for($i=0; $i<count($events['terms'])-1; $i++) {
-//     $stringToDisplay = $events[$itemCat][$i];
-//     if ($stringToDisplay){
-//         $loookupClass = $events['terms'][$i];
-
-//     }
-// }
-
-// foreach ($item->subjectValues() as $term => $subjectValues) {
-//     foreach ($subjectValues as $subjectValue) {
-//         $subjectResource = $subjectValue->resource();
-
-
-
-
-//queries for the subject values (inverse properties): events related to item in cidoc crm
-$page = $this->params()->fromQuery('page', 1);
-$property = $this->params()->fromQuery('property');
-$subjectValues = $item->displaySubjectValues($page, 25, $property);
+$foundEvents = array();
+$otherLinkedItems = array();
+//todo: create an ui hook for the ressources class to display
+//todo: fetch third degree items for object <- (production -> designOrProcedure) <- creation  
+foreach ($item->subjectValues() as $term => $subjectValues) {
+    foreach ($subjectValues as $subjectValue) {
+        $subjectResource = $subjectValue->resource();
+        $subjectResourceClass = $subjectResource->resourceClass()->term();
+        if (in_array($subjectResourceClass, array_keys($displayEvents))){
+            $foundEvents[] = $subjectResource;
+        } else {
+            $otherLinkedItems[] = $subjectResource;
+        };
+    };
+};
 ?>
 
 <!-- title of the ressource -->
@@ -169,65 +161,66 @@ function writeValueofTerms($termsArray, $itemRep){
 
 </div><!-- column div closing -->
 
+
+
+
+
+
+
+
+
 <div class="colonne rightCol">
 <div class="columnTitle">
     Évenements liés a cet item
 </div>
 
 <!-- function to build event display -->
-<?php
-//todo: class inheritance with external data
-//todo: ability to get the next class (e.g.: Creation -> DesignOrProcedure -> HumanMadeObjet : we need to reach Creation item)
-function writeEvent($classTerm, $displayTerm, $item) {
-    foreach ($item->subjectValues() as $term => $subjectValues) {
-        foreach ($subjectValues as $subjectValue) {
-            //todo: ordonner finement ensuite par date dans chaque catégorie 
-            $subjectResource = $subjectValue->resource();
-            $subjectProperty = $subjectValue->property();
-            $subjectResourceClass = $subjectResource->resourceClass()->term();
-            $subjectResourceURL = $subjectResource->url();
-            if ($subjectResourceClass == $classTerm) {
-                //echo $subjectResourceClass;
-                ?>
-                <div class="bloco">
-                    <?php
-                    echo sprintf('<h3><a href=%s>%s</a></h3>', $subjectResourceURL, $displayTerm);
-                    // echo sprintf('<h3>%s</h3>', $subjectResource->displayResourceClassLabel());
-                    $options = array('viewName' => 'common/resource-values_event-in-item',);
-                    echo $subjectResource->displayValues($options);
-                    ?>
-                </div>
-                <?php
-            }
-        }
-    }
+<?php if (!$foundEvents): ?>
+    <div class="bloco">
+        Aucun evenement trouvé
+    </div>
+<?php endif; ?>
+
+<?php    
+
+function writeEvent($event, $viewFile) {
+    $eventClass = $event->resourceClass()->term();
+    $eventURL = $event->url();
+    $displayString = (isset($displayEvents[$eventClass])) ? $displayEvents[$eventClass] : $event->resourceClass()->label();
+    ?>
+    <div class="bloco">
+        <?php
+        echo sprintf('<h3><a href=%s>%s</a></h3>', $eventURL, $displayString);
+        //$options = $viewFile ? array('viewName' => $viewFile,) : null;//'common/resource-values_event-in-item'
+        echo $viewFile ? $event->displayValues(array('viewName' => $viewFile,)) : $event->displayValues();
+        ?>
+    </div>
+    <?php
 };
 ?>
 
 <!-- subject values printing -->
 
-<?php if ($subjectValues): ?>
-    <div id="item-linked" >
+<?php if ($foundEvents): ?>
+    <div id="linked-events" >
         <?php 
         $itemClass = $item->resourceClass()->term();
-        //todo: create an ui hook for the ressources class to display
-        //todo: reuse the function created for seeAlso and documented_in -> write some props of some events.
-        //      for ex: people -(production)> object+date+lieux 
-        //todo: fetch third degree items for object <- (production -> designOrProcedure) <- creation  
-        if ($itemClass === 'crm:E22_Human-Made_Object'){
-            
-            writeEvent('crm:E12_Production', 'Production', $item);
-            writeEvent('crm:E11_Modification', 'Modification', $item);
-            writeEvent('crm:E8_Acquisition', 'Acquisition', $item);
-        }
-        elseif ($itemClass == ('crm:E21_Person' ||'crm:E39_Actor' || 'crm:E74_Group' )){
-            writeEvent('crm:E12_Production', 'A produit', $item);
-            writeEvent('crm:E11_Modification', 'A modifié', $item);
-            writeEvent('crm:E8_Acquisition', 'Acqui', $item);
-        }
+
+        switch ($itemClass) {
+            case 'crm:E22_Human-Made_Object': $viewFile = 'common/resource-values_event-in-item'; break;
+            case 'crm:E21_Person':
+            case 'crm:E39_Actor':
+            case 'crm:E74_Group': $viewFile = 'common/resource-values_event-in-item'; break;
+            default : $viewFile = 'common/resource-values_event-in-item';
+        };
+
+        foreach ($foundEvents as $event) {
+            writeEvent($event, $viewFile);
+        };        
         ?>
     </div>
 <?php endif; ?>
+
 
 </div><!-- column div closing -->
 
