@@ -1722,3 +1722,10 @@ label:hover {
 .itemClass{
 
 }
+
+#other-linked-items{
+  margin-top: 2rem;
+  border-top: dashed black 1px;
+  padding-top: 2rem;
+}
+

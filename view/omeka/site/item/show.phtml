@@ -24,20 +24,22 @@ $otherLinkedItems = array();
 
 //todo: fetch third degree items for object <- (production -> designOrProcedure) <- creation  
 foreach ($item->subjectValues() as $term => $subjectValues) {
-    foreach ($subjectValues as $subjectValue) {
-        $subjectResource = $subjectValue->resource();
-        $subjectResourceClass = $subjectResource->resourceClass()->term();
-        $datelit = $subjectResource->value('crm:P4_has_time-span', ['literal']);
-        preg_match('/\d\d\d\d?/', $datelit, $date);
-        $index = 100*$date[0];
-        if (in_array($subjectResourceClass, array_keys($displayEvents))){
-            while (key_exists($index, $foundEvents)) {echo $index++; };
-            $foundEvents[$index] = $subjectResource;
-        } else {
-            while (key_exists($index, $otherLinkedItems)) {echo $index++; };
-            $otherLinkedItems[$index] = $subjectResource;
+    if ($term != 'rdfs:seeAlso'){
+        foreach ($subjectValues as $subjectValue) {
+            $subjectResource = $subjectValue->resource();
+            $subjectResourceClass = $subjectResource->resourceClass()->term();
+            $datelit = $subjectResource->value('crm:P4_has_time-span', ['literal']);
+            preg_match('/\d\d\d\d?/', $datelit, $date);
+            $index = 100*$date[0];
+            if (in_array($subjectResourceClass, array_keys($displayEvents))){
+                while (key_exists($index, $foundEvents)) {echo $index++; };
+                $foundEvents[$index] = $subjectResource;
+            } else {
+                while (key_exists($index, $otherLinkedItems)) {echo $index++; };
+                $otherLinkedItems[$index] = $subjectResource;
+            };
         };
-    };
+    }  
 };
 ksort($foundEvents);
 ksort($otherLinkedItems);
@@ -177,20 +179,12 @@ function writeValueofTerms($termsArray, $itemRep){
 
 
 <div class="colonne rightCol">
-<div class="columnTitle">
-    Évenements liés a cet item
-</div>
 
-<!-- function to build event display -->
-<?php if (!$foundEvents): ?>
-    <div class="bloco">
-        Aucun evenement trouvé
-    </div>
-<?php endif; ?>
+
+
 
 <?php    
-
-function writeEvent($event, $viewFile) {
+function writeEvent($event, $viewFile=null) {
     $eventClass = $event->resourceClass()->term();
     $eventURL = $event->url();
     $displayString = (key_exists($eventClass, $displayEvents)) ? $displayEvents[$eventClass] : $event->resourceClass()->label();
@@ -207,9 +201,17 @@ function writeEvent($event, $viewFile) {
 ?>
 
 <!-- subject values printing -->
+<div id="linked-events" >
+    <div class="columnTitle">
+        Évenements liés à cet item
+    </div>
 
-<?php if ($foundEvents): ?>
-    <div id="linked-events" >
+    <?php if (!$foundEvents): ?>
+        <div class="bloco" style= "display: flex;  align-items: center;">
+            <img src = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Flat_cross_icon.svg" alt="Nothing" style="height: 2rem; margin: 0 1rem"/> 
+            <span>Aucun évènement trouvé</span>
+        </div>
+    <?php else: ?>
         <?php 
         $itemClass = $item->resourceClass()->term();
 
@@ -225,9 +227,28 @@ function writeEvent($event, $viewFile) {
             writeEvent($event, $viewFile);
         };        
         ?>
-    </div>
-<?php endif; ?>
+    <?php endif; ?>
+</div>
 
+
+<div id="other-linked-items" >
+<div class="columnTitle">
+        Autres éléments associés à cet item
+    </div>
+    <?php if (!$otherLinkedItems): ?>
+        <div class="bloco" style= "display: flex;  align-items: center;">
+            <img src = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Flat_cross_icon.svg" alt="Nothing" style="height: 2rem; margin: 0 1rem"/> 
+            <span>Aucun autre élément associé trouvé</span>
+        </div>
+    <?php else: ?>
+        <div id="other-linked-items" >
+            <?php 
+            foreach ($otherLinkedItems as $item) {
+                writeEvent($item);
+            };        
+            ?>
+    <?php endif; ?>
+</div>
 
 </div><!-- column div closing -->
 
