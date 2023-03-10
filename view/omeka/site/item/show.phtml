@@ -12,7 +12,7 @@ if ($embedMediaSetting == 1) {
     $otherMedia = $itemMedia;
 }
 
-
+//todo: create an ui hook for the ressources class to display
 $displayEvents = array(
     'crm:E12_Production' => 'Production',
     'crm:E11_Modification' => 'Modification',
@@ -21,19 +21,26 @@ $displayEvents = array(
 
 $foundEvents = array();
 $otherLinkedItems = array();
-//todo: create an ui hook for the ressources class to display
+
 //todo: fetch third degree items for object <- (production -> designOrProcedure) <- creation  
 foreach ($item->subjectValues() as $term => $subjectValues) {
     foreach ($subjectValues as $subjectValue) {
         $subjectResource = $subjectValue->resource();
         $subjectResourceClass = $subjectResource->resourceClass()->term();
+        $datelit = $subjectResource->value('crm:P4_has_time-span', ['literal']);
+        preg_match('/\d\d\d\d?/', $datelit, $date);
+        $index = 100*$date[0];
         if (in_array($subjectResourceClass, array_keys($displayEvents))){
-            $foundEvents[] = $subjectResource;
+            while (key_exists($index, $foundEvents)) {echo $index++; };
+            $foundEvents[$index] = $subjectResource;
         } else {
-            $otherLinkedItems[] = $subjectResource;
+            while (key_exists($index, $otherLinkedItems)) {echo $index++; };
+            $otherLinkedItems[$index] = $subjectResource;
         };
     };
 };
+ksort($foundEvents);
+ksort($otherLinkedItems);
 ?>
 
 <!-- title of the ressource -->
@@ -186,7 +193,7 @@ function writeValueofTerms($termsArray, $itemRep){
 function writeEvent($event, $viewFile) {
     $eventClass = $event->resourceClass()->term();
     $eventURL = $event->url();
-    $displayString = (isset($displayEvents[$eventClass])) ? $displayEvents[$eventClass] : $event->resourceClass()->label();
+    $displayString = (key_exists($eventClass, $displayEvents)) ? $displayEvents[$eventClass] : $event->resourceClass()->label();
     ?>
     <div class="bloco">
         <?php
