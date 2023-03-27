@@ -1694,12 +1694,20 @@ h3 {
 }
 
 #expend:checked + .smalldesc {
-  max-height:1000px;  
+  max-height:fit-content;  
 }
 
 label {
   text-decoration:underline;
   cursor:pointer;
+}
+
+#expend ~ label::after {
+  content: "plus ..."; 
+}
+
+#expend:checked ~ label::after {
+  content: "moins ..."; 
 }
 
 label:hover {
