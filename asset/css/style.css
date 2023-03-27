@@ -1115,6 +1115,9 @@ textarea{
   }
 }
 @media screen{
+  .property .value-content{
+    width: 100%;
+  }
   .property .value-content:not(:only-child){
       margin-right:6px
   }
