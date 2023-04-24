@@ -151,7 +151,8 @@ function writeValueofTerms($termsArray, $itemRep){
     <div id="ficheAuth" class="property">
         <h4>Rédacteur·trice</h4>
         <div class="values">
-            <div class="value"><a href="<?php echo $escape($item->owner()->url()); ?>"><?php echo $item->owner()->name(); ?></a></div>
+            <!-- <div class="value"><a href="<?php // echo $escape($item->owner()->url()); ?>"><?php // echo $item->owner()->name(); ?></a></div> -->
+            <div class="value"><?php echo $item->owner()->name(); ?></div>
         </div>
     </div>
     <div id="ficheCreate" class="property">
@@ -161,7 +162,7 @@ function writeValueofTerms($termsArray, $itemRep){
         </div>
     </div>
     <div id="ficheCreate" class="property">
-        <h4>Date modification</h4>
+        <h4>Date de modification</h4>
         <div class="values">
             <div class="value"><?php echo $escape($this->i18n()->dateFormat($item->modified())); ?></div>
         </div>
