@@ -22,22 +22,34 @@ $displayEvents = array(
 $foundEvents = array();
 $otherLinkedItems = array();
 
+//this finds the linked resources and order them by date (time_span)
+$i=0;
+$j=0;
+$maxTerm = 10;
+$max_itemPerTerm = 20;
 //todo: fetch third degree items for object <- (production -> designOrProcedure) <- creation  
 foreach ($item->subjectValues() as $term => $subjectValues) {
+    if(++$i > $maxTerm) break;//max terms analyzed
     if ($term != 'rdfs:seeAlso'){
         foreach ($subjectValues as $subjectValue) {
+            if(++$j > $max_itemPerTerm) break;//max item analyzed per term
             $subjectResource = $subjectValue->resource();
-            $subjectResourceClass = $subjectResource->resourceClass()->term();
-            $datelit = $subjectResource->value('crm:P4_has_time-span', ['literal']);
-            preg_match('/\d\d\d\d?/', $datelit, $date);
-            $index = 100*$date[0];
-            if (in_array($subjectResourceClass, array_keys($displayEvents))){
-                while (key_exists($index, $foundEvents)) {echo $index++; };
-                $foundEvents[$index] = $subjectResource;
-            } else {
-                while (key_exists($index, $otherLinkedItems)) {echo $index++; };
-                $otherLinkedItems[$index] = $subjectResource;
-            };
+            if ($subjectResource->getControllerName($subjectResource) != 'media'){//if the linked item is not a mediaa (through RightsHolder property)
+                $subjectResourceClass = $subjectResource->resourceClass();
+                $subjectResourceClassTerm = (isset($subjectResourceClass) ? $subjectResourceClass->term() : null );
+                // $subjectResourceClass = $subjectResource->resourceClass()->term();
+                $datelit = $subjectResource->value('crm:P4_has_time-span', ['literal']);
+                preg_match('/\d\d\d\d?/', $datelit, $date);
+                $index = 100*$date[0];
+                if (in_array($subjectResourceClassTerm, array_keys($displayEvents))){
+                    while (key_exists($index, $foundEvents)) {echo $index++; };
+                    $foundEvents[$index] = $subjectResource;
+                } else {
+                    while (key_exists($index, $otherLinkedItems)) {echo $index++; };
+                    $otherLinkedItems[$index] = $subjectResource;
+                };
+            }
+            
         };
     }  
 };
@@ -214,6 +226,11 @@ function writeValueofTerms($termsArray, $itemRep){
 
 <?php    
 function writeEvent($event, $viewFile=null) {
+    $eventClass = $event->resourceClass();
+    if (!isset($eventClass)){
+        echo $event->id();
+        return;
+    }
     $eventClass = $event->resourceClass()->term();
     $eventURL = $event->url();
     $displayString = (key_exists($eventClass, $displayEvents)) ? $displayEvents[$eventClass] : $event->resourceClass()->label();
