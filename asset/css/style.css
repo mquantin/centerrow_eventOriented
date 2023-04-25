@@ -1691,7 +1691,7 @@ h3 {
 }
 
 #expend + .smalldesc {
-  max-height:77px;
+  max-height:74px;
   overflow:hidden;
   transition:all .3s ease;
 }
