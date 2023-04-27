@@ -25,8 +25,8 @@ $otherLinkedItems = array();
 //this finds the linked resources and order them by date (time_span)
 $i=0;
 $j=0;
-$maxTerm = 10;
-$max_itemPerTerm = 20;
+$maxTerm = 20;
+$max_itemPerTerm = 8;
 //todo: fetch third degree items for object <- (production -> designOrProcedure) <- creation  
 foreach ($item->subjectValues() as $term => $subjectValues) {
     if(++$i > $maxTerm) break;//max terms analyzed
