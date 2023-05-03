@@ -34,18 +34,17 @@ foreach ($item->subjectValues() as $term => $subjectValues) {
         foreach ($subjectValues as $subjectValue) {
             if(++$j > $max_itemPerTerm) break;//max item analyzed per term
             $subjectResource = $subjectValue->resource();
-            if ($subjectResource->getControllerName($subjectResource) != 'media'){//if the linked item is not a mediaa (through RightsHolder property)
+            if ($subjectResource->getControllerName($subjectResource) != 'media'){//if the linked item is not a media (through RightsHolder property)
                 $subjectResourceClass = $subjectResource->resourceClass();
                 $subjectResourceClassTerm = (isset($subjectResourceClass) ? $subjectResourceClass->term() : null );
-                // $subjectResourceClass = $subjectResource->resourceClass()->term();
                 $datelit = $subjectResource->value('crm:P4_has_time-span', ['literal']);
                 preg_match('/\d\d\d\d?/', $datelit, $date);
-                $index = 100*$date[0];
+                $index = 100*$date[0];// ex: 194400 for 1944
                 if (in_array($subjectResourceClassTerm, array_keys($displayEvents))){
-                    while (key_exists($index, $foundEvents)) {echo $index++; };
+                    while (key_exists($index, $foundEvents)) {++$index; };//if key allready in use (same date); then go to next index (194401 for example)
                     $foundEvents[$index] = $subjectResource;
                 } else {
-                    while (key_exists($index, $otherLinkedItems)) {echo $index++; };
+                    while (key_exists($index, $otherLinkedItems)) {++$index; };
                     $otherLinkedItems[$index] = $subjectResource;
                 };
             }
