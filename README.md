@@ -23,7 +23,7 @@ and some related items data (production metadata, location metadata).
 ![screenshot render](screenshot.png)
 
 ## Copyright
-Center Row is Copyright © 2016-present Corporation for Digital Scholarship, Vienna, Virginia, USA http://digitalscholar.org
+Center Row is Copyright © 2016-present Corporation for Digital Scholarship, Vienna, Virginia, USA http://digitalscholar.org  
 Center Row is Copyright © 2023-present École Centrale de Nantes, Nantes, France, https://ec-nantes.fr
 
 The Corporation for Digital Scholarship distributes the Omeka source code
