@@ -1,4 +1,5 @@
 <?php
+$escape = $this->plugin('escapeHtml');
 $translate = $this->plugin('translate');
 $this->headLink()->appendStylesheet($this->assetUrl('css/resource-page-blocks.css', 'Omeka'));
 $this->htmlElement('body')->appendAttribute('class', 'item resource show');
@@ -10,4 +11,60 @@ $valueLang = $filterLocale ? [$lang, ''] : null;
 <h3><?php echo $translate('Item'); ?></h3>
 <?php $this->trigger('view.show.before'); ?>
 <?php echo $this->resourcePageBlocks($item)->getBlocks(); ?>
+
+
+<!-- bloc de présentation des informations administratives de la fiche:
+mise à jour, creation, personnes, dates, etc.  -->
+<div class="bloco">
+  <h3>Cette fiche d'inventaire</h3>
+
+  <dl class = "author-list">
+    <div class="property">
+        <dt>Rédacteur·trice</dt>
+        <dd class="value"><?php echo $item->owner()->name(); ?></dd>
+    </div>
+  </dl>
+  <dl class = "ficheCreate">
+    <div class="property">
+      <dt>Date de creation</dt>
+        <dd class="value"><?php echo $escape($this->i18n()->dateFormat($item->created())); ?></dd>
+    </div>
+  </dl>
+  <dl class = "ficheMod">
+    <div class="property">
+        <dt>Date de modification</dt>
+          <dd class="value"><?php echo $escape($this->i18n()->dateFormat($item->modified())); ?></dd>
+    </div>
+  </dl>
+  <dl class = "mediaRightsHolders">
+    <div class="property">
+        <?php 
+        $allrightsHoldersValues = array();
+        $alt_label = null;
+        foreach ($item->media() as $media):
+            $allValues = $media->values();//all metadata of 1 media
+            // $this->logger()->info(json_encode($allValues));
+            if (isset($allValues['dcterms:rightsHolder'])){
+                array_push($allrightsHoldersValues, ...$allValues['dcterms:rightsHolder']['values']);//add all values for dc:rightsHolder for 1 media
+                if(!isset($alt_label)){ 
+                    $alt_label = $allValues['dcterms:rightsHolder']['alternate_label'];//get the alternate label declared, on the first loop only
+                }
+            };
+        endforeach;
+        if ($allrightsHoldersValues){
+            ?>
+            <div class="property ">
+              <dt><?php echo $alt_label; ?></dt>
+                <?php foreach(array_unique($allrightsHoldersValues) as $rightHolder):
+                      ?>
+                    <dd class="value"><?php echo $rightHolder->asHtml(); ?></dd>
+                <?php endforeach; ?>
+            </div>
+            <?php
+        };
+        ?>
+    </div>
+  </dl>
+</div>
+
 <?php $this->trigger('view.show.after'); ?>
