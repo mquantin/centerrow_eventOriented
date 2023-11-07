@@ -1,17 +1,117 @@
 <?php
-$options = [
-    'page' => $this->params()->fromQuery('page', 1),
-    'perPage' => 25,
-    'resourceProperty' => $this->params()->fromQuery('resource_property'),
-];
-if ($this->siteSetting('exclude_resources_not_in_site')) {
-    $options['siteId'] = $this->currentSite()->id();
-}
-$subjectValues = $resource->displaySubjectValues($options);
+$displayEventClasses = array(
+    'crm:E12_Production' => 'Production',
+    'crm:E11_Modification' => 'Modification',
+    'crm:E8_Acquisition' => 'Acquisition',
+);
+
+$foundEvents = array();
+$otherLinkedItems = array();
+
+
+
+//this finds the linked resources and order them by date (time_span)
+$i=0;
+$j=0;
+$maxTerm = 20;
+$max_itemPerTerm = 8;
+//todo: fetch third degree items for object <- (production -> designOrProcedure) <- creation  
+foreach ($resource->subjectValues() as $term => $subjectValues) {
+    if(++$i > $maxTerm) break;//max terms analyzed
+    if ($term != 'rdfs:seeAlso'){
+        foreach ($subjectValues as $subjectValue) {
+            if(++$j > $max_itemPerTerm) break;//max item analyzed per term
+            $subjectResource = $subjectValue['val']->resource();
+            if ($subjectResource->getControllerName($subjectResource) != 'media'){//if the linked item is not a media (through RightsHolder property)
+                $subjectResourceClass = $subjectResource->resourceClass();
+                $subjectResourceClassTerm = (isset($subjectResourceClass) ? $subjectResourceClass->term() : null );
+                $datelit = $subjectResource->value('crm:P4_has_time-span', ['literal']);
+                preg_match('/\d\d\d\d?/', $datelit, $date);
+                $index = 100*$date[0];// ex: 194400 for 1944
+                if (in_array($subjectResourceClassTerm, array_keys($displayEvents))){
+                    while (key_exists($index, $foundEvents)) {++$index; };//if key allready in use (same date); then go to next index (194401 for example)
+                    $foundEvents[$index] = $subjectResource;
+                } else {
+                    while (key_exists($index, $otherLinkedItems)) {++$index; };
+                    $otherLinkedItems[$index] = $subjectResource;
+                };
+            }
+            
+        };
+    }  
+};
+ksort($foundEvents);
+ksort($otherLinkedItems);
+
+
+function writeEvent($event, $viewFile=null) {
+    global $displayEventClasses;
+    $eventClass = $event->resourceClass();
+    if (!isset($eventClass)){
+        echo $event->id();
+        return;
+    }
+    $eventClass = $event->resourceClass()->term();
+    $eventURL = $event->url();
+    $displayString = (key_exists($eventClass, $displayEventClasses)) ? $displayEventClasses[$eventClass] : $event->resourceClass()->label();
+    ?>
+    <div class="bloco">
+        <?php
+        echo sprintf('<h3><a href=%s>%s</a></h3>', $eventURL, $displayString);
+        //$options = $viewFile ? array('viewName' => $viewFile,) : null;//'common/resource-values_event-in-item'
+        echo $viewFile ? $event->displayValues(array('viewName' => $viewFile,)) : $event->displayValues();
+        ?>
+    </div>
+    <?php
+};
 ?>
-<?php if ($subjectValues): ?>
-<div id="resources-linked">
-    <h3><?php echo $this->translate('Linked resources'); ?></h3>
-    <?php echo $subjectValues; ?>
+
+<!-- subject values printing -->
+<div id="linked-events" >
+    <div class="columnTitle">
+        Évenements liés à cet item
+    </div>
+
+    <?php if (!$foundEvents): ?>
+        <div class="bloco" style= "display: flex;  align-items: center;">
+            <img src = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Flat_cross_icon.svg" alt="Nothing" style="height: 2rem; margin: 0 1rem"/> 
+            <span>Aucun évènement trouvé</span>
+        </div>
+    <?php else: ?>
+        <?php 
+        $itemClass = $item->resourceClass()->term();
+
+        switch ($itemClass) {
+            case 'crm:E22_Human-Made_Object': $viewFile = 'common/resource-values_event-in-item'; break;
+            case 'crm:E21_Person':
+            case 'crm:E39_Actor':
+            case 'crm:E74_Group': $viewFile = 'common/resource-values_event-in-item'; break;
+            default : $viewFile = 'common/resource-values_event-in-item';
+        };
+
+        foreach ($foundEvents as $event) {
+            writeEvent($event, $viewFile);
+        };        
+        ?>
+    <?php endif; ?>
 </div>
-<?php endif; ?>
+
+
+<div id="other-linked-items" >
+<div class="columnTitle">
+        Autres éléments associés à cet item
+    </div>
+    <?php if (!$otherLinkedItems): ?>
+        <div class="bloco" style= "display: flex;  align-items: center;">
+            <img src = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Flat_cross_icon.svg" alt="Nothing" style="height: 2rem; margin: 0 1rem"/> 
+            <span>Aucun autre élément associé trouvé</span>
+        </div>
+    <?php else: ?>
+        <div id="other-linked-items" >
+            <?php 
+            foreach ($otherLinkedItems as $item) {
+                writeEvent($item);
+            };
+            ?>
+    <?php endif; ?>
+</div>
