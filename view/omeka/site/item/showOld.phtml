@@ -1,0 +1,300 @@
+<?php
+$escape = $this->plugin('escapeHtml');
+$this->htmlElement('body')->appendAttribute('class', 'item resource show');
+
+$embedMediaSetting = $this->siteSetting('item_media_embed');
+$itemMedia = $item->media();
+if ($embedMediaSetting == 1) {
+    $sortedMedia = $this->SortMedia($itemMedia);
+    $lightMedia = (isset($sortedMedia['lightMedia'])) ? $sortedMedia['lightMedia'] : null;
+    $otherMedia = (isset($sortedMedia['otherMedia'])) ? $sortedMedia['otherMedia'] : null;
+} else {
+    $otherMedia = $itemMedia;
+}
+
+//todo: create an ui hook for the ressources class to display
+$displayEvents = array(
+    'crm:E12_Production' => 'Production',
+    'crm:E11_Modification' => 'Modification',
+    'crm:E8_Acquisition' => 'Acquisition',
+);
+
+$foundEvents = array();
+$otherLinkedItems = array();
+
+//this finds the linked resources and order them by date (time_span)
+$i=0;
+$j=0;
+$maxTerm = 20;
+$max_itemPerTerm = 8;
+//todo: fetch third degree items for object <- (production -> designOrProcedure) <- creation  
+foreach ($item->subjectValues() as $term => $subjectValues) {
+    if(++$i > $maxTerm) break;//max terms analyzed
+    if ($term != 'rdfs:seeAlso'){
+        foreach ($subjectValues as $subjectValue) {
+            if(++$j > $max_itemPerTerm) break;//max item analyzed per term
+            $subjectResource = $subjectValue->resource();
+            if ($subjectResource->getControllerName($subjectResource) != 'media'){//if the linked item is not a media (through RightsHolder property)
+                $subjectResourceClass = $subjectResource->resourceClass();
+                $subjectResourceClassTerm = (isset($subjectResourceClass) ? $subjectResourceClass->term() : null );
+                $datelit = $subjectResource->value('crm:P4_has_time-span', ['literal']);
+                preg_match('/\d\d\d\d?/', $datelit, $date);
+                $index = 100*$date[0];// ex: 194400 for 1944
+                if (in_array($subjectResourceClassTerm, array_keys($displayEvents))){
+                    while (key_exists($index, $foundEvents)) {++$index; };//if key allready in use (same date); then go to next index (194401 for example)
+                    $foundEvents[$index] = $subjectResource;
+                } else {
+                    while (key_exists($index, $otherLinkedItems)) {++$index; };
+                    $otherLinkedItems[$index] = $subjectResource;
+                };
+            }
+            
+        };
+    }  
+};
+ksort($foundEvents);
+ksort($otherLinkedItems);
+?>
+
+<!-- title of the ressource -->
+<div class= "title">
+    <h2> <?php echo $item->displayTitle(); ?> </h2>
+    <span class= "itemClass">
+        Un item de type <?php echo $item->resourceClass()->vocabulary()->prefix() ?>:<?php echo $this->translate($item->displayResourceClassLabel()); ?>
+    </span>
+
+</div>
+
+
+
+<!-- the images -->
+<?php if (isset($lightMedia)): ?>
+    <?php echo $this->LightGalleryOutput($lightMedia); ?>
+<?php endif; ?>
+
+
+
+
+<div class="colonne leftCol">
+<div class="columnTitle">
+    À propos de cet item
+</div>
+
+<!-- all the properties -->
+<div class="bloco">
+    <?php echo $item->displayValues(); ?>
+</div>
+
+
+<!-- additional info about the ressource -->
+<?php 
+$otherMediaExists =  (isset($otherMedia) && (count($otherMedia) > 0));
+$itemSets = $item->itemSets();
+$itemSetExists = (count($itemSets) > 0);
+
+$termsToDisplay = array('rdfs:seeAlso', 'crm:P70i_is_documented_in',);
+$allValues = $item->values();
+$anyOfAddInfo = ($otherMediaExists || $itemSetExists || array_intersect($termsToDisplay, array_keys($allValues)));
+
+//uses a value representation + data in array as given by the values() function of AbstractResourceEntityRepresentation
+function writeValueofTerms($termsArray, $itemRep){
+    $allValues = $itemRep->values();
+    foreach($termsArray as $term){
+        $propValue = $allValues[$term];
+        if ($propValue){
+            ?>
+            <div class="property ">
+                <h4><?php echo $propValue['alternate_label']; ?></h4>
+                <div class="values">
+                    <?php foreach ($propValue['values'] as $value): ?>
+                        <div class="value"><?php echo $value->asHtml(); ?></div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php
+        };
+    };
+};
+?>
+
+
+<?php if ($anyOfAddInfo): ?>
+    <div class="bloco">
+        <h3>Éléments associés</h3>
+
+    <!-- media other than images -->
+    <?php if($otherMediaExists): ?>
+        <div id="other-media" class="property">
+            <h4><?php echo $this->translate('Other Media'); ?></h4>
+            <div class="values">
+                <?php foreach($otherMedia as $media): ?>
+                <div class="value">
+                    <?php echo $media->linkPretty(); ?>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <!-- item set -->
+    <?php if($itemSetExists): ?>
+        <div class="property ">
+            <h4>Collection(s) contenant l'objet</h4>
+            <div class="values">
+                <?php foreach ($item->itemSets() as $itemSet): ?>
+                <div class="value"><a href="<?php echo $escape($itemSet->url()); ?>"><?php echo $itemSet->displayTitle(); ?></a></div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <!-- display props -->
+    <?php writeValueofTerms($termsToDisplay, $item) ?>
+
+    </div>
+<?php endif; ?>
+
+
+
+<!-- info about the omeka record -->
+<div class="bloco">
+    <h3>Cette fiche d'inventaire</h3>
+    <div id="ficheAuth" class="property">
+        <h4>Rédacteur·trice</h4>
+        <div class="values">
+            <!-- <div class="value"><a href="<?php // echo $escape($item->owner()->url()); ?>"><?php // echo $item->owner()->name(); ?></a></div> -->
+            <div class="value"><?php echo $item->owner()->name(); ?></div>
+        </div>
+    </div>
+    <div id="ficheCreate" class="property">
+        <h4>Date de creation</h4>
+        <div class="values">
+            <div class="value"><?php echo $escape($this->i18n()->dateFormat($item->created())); ?></div>
+        </div>
+    </div>
+    <div id="ficheCreate" class="property">
+        <h4>Date de modification</h4>
+        <div class="values">
+            <div class="value"><?php echo $escape($this->i18n()->dateFormat($item->modified())); ?></div>
+        </div>
+    </div>
+    <div id="mediaRightsHolders" class="property">
+        <?php 
+        $allrightsHoldersValues = array();
+        $alt_label = null;
+        foreach ($itemMedia as $media):
+            $allValues = $media->values();//all metadata of 1 media
+            if (isset($allValues['dcterms:rightsHolder'])){
+                array_push($allrightsHoldersValues, ...$allValues['dcterms:rightsHolder']['values']);//add all values for dc:rightsHolder for 1 media
+                if(!isset($alt_label)){ 
+                    $alt_label = $allValues['dcterms:rightsHolder']['alternate_label'];//get the alternate label declared, on the first loop only
+                }
+            };
+        endforeach;
+        if ($allrightsHoldersValues){
+            ?>
+            <div class="property ">
+                <h4><?php echo $alt_label; ?></h4>
+                <div class="values">
+                    <?php foreach(array_unique($allrightsHoldersValues) as $rightHolder):
+                         ?>
+                        <div class="value"><?php echo $rightHolder->asHtml(); ?></div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php
+        };
+        ?>
+    </div>
+</div>
+
+</div><!-- column div closing -->
+
+
+
+
+
+
+
+
+
+<div class="colonne rightCol">
+
+
+
+
+<?php    
+function writeEvent($event, $viewFile=null) {
+    $eventClass = $event->resourceClass();
+    if (!isset($eventClass)){
+        echo $event->id();
+        return;
+    }
+    $eventClass = $event->resourceClass()->term();
+    $eventURL = $event->url();
+    $displayString = (key_exists($eventClass, $displayEvents)) ? $displayEvents[$eventClass] : $event->resourceClass()->label();
+    ?>
+    <div class="bloco">
+        <?php
+        echo sprintf('<h3><a href=%s>%s</a></h3>', $eventURL, $displayString);
+        //$options = $viewFile ? array('viewName' => $viewFile,) : null;//'common/resource-values_event-in-item'
+        echo $viewFile ? $event->displayValues(array('viewName' => $viewFile,)) : $event->displayValues();
+        ?>
+    </div>
+    <?php
+};
+?>
+
+<!-- subject values printing -->
+<div id="linked-events" >
+    <div class="columnTitle">
+        Évenements liés à cet item
+    </div>
+
+    <?php if (!$foundEvents): ?>
+        <div class="bloco" style= "display: flex;  align-items: center;">
+            <img src = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Flat_cross_icon.svg" alt="Nothing" style="height: 2rem; margin: 0 1rem"/> 
+            <span>Aucun évènement trouvé</span>
+        </div>
+    <?php else: ?>
+        <?php 
+        $itemClass = $item->resourceClass()->term();
+
+        switch ($itemClass) {
+            case 'crm:E22_Human-Made_Object': $viewFile = 'common/resource-values_event-in-item'; break;
+            case 'crm:E21_Person':
+            case 'crm:E39_Actor':
+            case 'crm:E74_Group': $viewFile = 'common/resource-values_event-in-item'; break;
+            default : $viewFile = 'common/resource-values_event-in-item';
+        };
+
+        foreach ($foundEvents as $event) {
+            writeEvent($event, $viewFile);
+        };        
+        ?>
+    <?php endif; ?>
+</div>
+
+
+<div id="other-linked-items" >
+<div class="columnTitle">
+        Autres éléments associés à cet item
+    </div>
+    <?php if (!$otherLinkedItems): ?>
+        <div class="bloco" style= "display: flex;  align-items: center;">
+            <img src = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Flat_cross_icon.svg" alt="Nothing" style="height: 2rem; margin: 0 1rem"/> 
+            <span>Aucun autre élément associé trouvé</span>
+        </div>
+    <?php else: ?>
+        <div id="other-linked-items" >
+            <?php 
+            foreach ($otherLinkedItems as $item) {
+                writeEvent($item);
+            };
+            ?>
+    <?php endif; ?>
+</div>
+
+</div><!-- column div closing -->
+
+<?php $this->trigger('view.show.after'); ?>
