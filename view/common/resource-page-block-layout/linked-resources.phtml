@@ -21,6 +21,7 @@ foreach ($resource->subjectValues() as $term => $subjectValues) {
     if ($term != 'rdfs:seeAlso'){
         foreach ($subjectValues as $subjectValue) {
             if(++$j > $max_itemPerTerm) break;//max item analyzed per term
+            // $this->logger()->info(json_encode($subjectValue['val']->resource()));
             $subjectResource = $subjectValue['val']->resource();
             if ($subjectResource->getControllerName($subjectResource) != 'media'){//if the linked item is not a media (through RightsHolder property)
                 $subjectResourceClass = $subjectResource->resourceClass();
