@@ -1,10 +1,4 @@
 <?php
-$displayEventClasses = array(
-    'crm:E12_Production' => 'Production',
-    'crm:E11_Modification' => 'Modification',
-    'crm:E8_Acquisition' => 'Acquisition',
-);
-
 //les classes sont regroupées par catégories puisque omeka-s ne propose pas de gérer l'héritage de classes
 //j'ai choisi de réunir par classes plus que par propriété car par exemple la classe "acquisition" pourra être montré sur une fiche E22HMO et une fiche E21Person; 
 $displayedEventsMapping = array(
@@ -50,7 +44,6 @@ foreach ($resource->subjectValues() as $index => $subjectValues) {
             $subjectResource = $subjectValue['val']->resource();
             if ($subjectResource->getControllerName($subjectResource) === 'item'){//if the linked item is not a media (through RightsHolder property)
                 $subjectResourceClassId = $subjectResource->resourceClass()->id();
-                //$subjectResourceClassTerm = (isset($subjectResourceClass) ? $subjectResourceClass->term() : null );
                 $datelit = $subjectResource->value('crm:P4_has_time-span', ['literal']);
                 preg_match('/\d\d\d\d?/', $datelit, $date);
                 $dateindex = 100*$date[0];// ex: 194400 for 1944
@@ -71,20 +64,19 @@ ksort($otherLinkedItems);
 
 
 function writeEvent($event, $viewFile=null) {
-    global $displayEventClasses;
+    global $eventClassId2categ;
     $eventClass = $event->resourceClass();
     if (!isset($eventClass)){
-        echo $event->id();
+        $this->logger()->info("no class found for this item (event): {$event->id()}");//TODO fix "Error: Using $this when not in object context"
         return;
     }
-    $eventClass = $event->resourceClass()->term();
+    $eventClassId = $event->resourceClass()->id();
     $eventURL = $event->url();
-    $displayString = (key_exists($eventClass, $displayEventClasses)) ? $displayEventClasses[$eventClass] : $event->resourceClass()->label();
+    $displayString = (key_exists($eventClassId, $eventClassId2categ)) ? $eventClassId2categ[$eventClassId] : $event->resourceClass()->label();
     ?>
     <div class="bloco">
         <?php
         echo sprintf('<h3><a href=%s>%s</a></h3>', $eventURL, $displayString);
-        //$options = $viewFile ? array('viewName' => $viewFile,) : null;//'common/resource-values_event-in-item'
         echo $viewFile ? $event->displayValues(array('viewName' => $viewFile,)) : $event->displayValues();
         ?>
     </div>
