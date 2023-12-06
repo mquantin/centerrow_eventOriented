@@ -1719,3 +1719,12 @@ textarea{
       margin-top:0
   }
 }
+
+
+.resource.show  dl{
+  background: #f2f2f2;
+  margin: 1rem;
+  padding: 1rem; 
+  border-radius: 1rem; 
+  border: solid 1px gray;
+}
