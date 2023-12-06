@@ -21,7 +21,7 @@ $filterLocaleCallback = function ($value) use ($lang) {
 };
 ?>
 
-<dl>
+<dl id="resource-values">
 <?php
 foreach ($values as $term => $propertyData):
     $propertyValues = $propertyData['values'];
@@ -41,7 +41,7 @@ foreach ($values as $term => $propertyData):
         $propertyTerm = null;
     }
 ?>
-    <div class="property">
+    <div class="property" id = <?php echo $property->term(); ?>>
         <dt>
         <?php echo $escape($propertyLabel); ?>
         <?php if ($propertyTerm !== null): ?>
