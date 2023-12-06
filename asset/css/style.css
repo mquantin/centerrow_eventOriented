@@ -1731,3 +1731,32 @@ textarea{
   border: solid 1px gray;
   width: 48%;
 }
+
+
+/* handling description expand / collapse */
+#expend {
+  display:none;  
+}
+#expend + .smalldesc {
+  max-height:100px;
+  overflow:hidden;
+  transition:all .3s ease;
+}
+#expend:checked + .smalldesc {
+  max-height:1000px;  
+  max-height:fit-content;  
+}
+label {
+  text-decoration:underline;
+  cursor:pointer;
+}
+#expend ~ label::after {
+  content: "plus ..."; 
+}
+#expend:checked ~ label::after {
+  content: "moins ..."; 
+}
+label:hover {
+  text-decoration:none;  
+}
+/* end of handling description expand / collapse */
