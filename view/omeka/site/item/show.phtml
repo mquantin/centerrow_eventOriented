@@ -6,19 +6,11 @@ $this->htmlElement('body')->appendAttribute('class', 'item resource show');
 $filterLocale = (bool) $this->siteSetting('filter_locale_values');
 $lang = $this->lang();
 $valueLang = $filterLocale ? [$lang, ''] : null;
+$blocks =  $this->resourcePageBlocks($item)->getBlocksList();
 ?>
 <?php echo $this->pageTitle($item->displayTitle(null, $valueLang), 2); ?>
 
 <?php $this->trigger('view.show.before'); ?>
-<?php 
-// $blocos =  $this->resourcePageBlocks($item)->getBlocks();
-// echo $blocos;
-$blocks =  $this->resourcePageBlocks($item)->getBlocksList();
-foreach ($blocks as $blockName => $block){
-  echo $blockName;
-  echo $block;
-};
-?>
 
 <?php 
 //uses a value representation + data in array as given by the values() function of AbstractResourceEntityRepresentation
@@ -46,7 +38,8 @@ function writeValueofTerms($termsArray, $itemRep){
 $itemSets = $item->itemSets();
 $relatedTerms = array('rdfs:seeAlso', 'crm:P70i_is_documented_in',);
 $allValues = $item->values();
-if ($itemSets || array_intersect($relatedTerms, array_keys($allValues))): ?>
+if ($itemSets || array_intersect($relatedTerms, array_keys($allValues))): 
+ob_start();?>
 <dl id="related">
     <h3>Éléments associés</h3>
     <div id= "o:item-set" class="property">
@@ -61,19 +54,15 @@ if ($itemSets || array_intersect($relatedTerms, array_keys($allValues))): ?>
     writeValueofTerms($relatedTerms, $resource) 
     ?>
 </dl>
-<?php endif; ?>
-
-
-
-
-
-
-
-
+<?php 
+$blocks['related'] = ob_get_clean();
+endif; 
+?>
 
 
 <!-- bloc de présentation des informations administratives de la fiche:
 mise à jour, creation, personnes, dates, etc.  -->
+<?php ob_start();?>
 <dl id="admin-info" class="bloco">
   <h3>Cette fiche d'inventaire</h3>
   <div id = "author-list" class="property">
@@ -115,6 +104,48 @@ mise à jour, creation, personnes, dates, etc.  -->
       };
       ?>
   </div>
+</dl>
+<?php 
+$blocks['adminInfo'] = ob_get_clean();?>
+
+
+<?php 
+function renderBlock($blockName, $blocks){
+  // echo $blockName;
+  if (array_key_exists($blockName, $blocks)) {
+    echo $blocks[$blockName];
+  }
+}
+
+
+renderBlock('resourceClass', $blocks);
+renderBlock('lightboxGallery', $blocks);
+?>
+
+
+
+
+<div id="row">
+
+  <div id="columnA">
+    <?php 
+    renderBlock('values', $blocks);
+    renderBlock('related', $blocks);
+    renderBlock('adminInfo', $blocks);
+    ?>
+  </div>
+
+  <div id="columnB">
+    <div class="columnTitle">
+      ↓ Évenements du cycle de vie de l'item ↓
+    </div>
+    <?php 
+    renderBlock('linkedResources', $blocks);
+    renderBlock('testError', $blocks);
+    ?>
+  </div>
 </div>
+
+
 
 <?php $this->trigger('view.show.after'); ?>
