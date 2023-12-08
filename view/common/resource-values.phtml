@@ -21,54 +21,82 @@ $filterLocaleCallback = function ($value) use ($lang) {
 };
 ?>
 
+<?php
+$propertiesNotDisplayed = array('skos:prefLabel', 'crm:P70i_is_documented_in', 'rdfs:seeAlso');//AS THEME OPTION
+//'crm:P70i_is_documented_in', 'rdfs:seeAlso' are called in separated bloco "see Also"
+//prefLabel is page header
+$expandableTerms = array('dcterms:description', 'rdaa:P50113');//AS THEME OPTION
+?>
+
 <dl id="resource-values">
 <?php
 foreach ($values as $term => $propertyData):
     $propertyValues = $propertyData['values'];
+    if (!$propertyValues) continue;
+    $property = $propertyData['property'];
     if ($filterLocale) {
         $propertyValues = array_filter($propertyValues, $filterLocaleCallback);
-    }
-    if (!$propertyValues) {
-        continue;
-    }
-    $property = $propertyData['property'];
+    };
     $propertyLabel = $propertyData['alternate_label'] ?: $translate($property->label());
-    if ('term' === $labelInfo) {
-        $propertyTerm = $property->term();
-    } elseif ('vocab' === $labelInfo) {
-        $propertyTerm = $property->vocabulary()->label();
-    } else {
-        $propertyTerm = null;
-    }
+    $propertyTerm = $property->term();
+    if (in_array($propertyTerm, $propertiesNotDisplayed)) continue;
 ?>
     <div class="property" id = <?php echo $property->term(); ?>>
         <dt>
         <?php echo $escape($propertyLabel); ?>
-        <?php if ($propertyTerm !== null): ?>
-            <span class="field-term">(<?php echo $escape($propertyTerm); ?>)</span>
+
+        <?php         
+        if ('term' === $labelInfo) {
+            $displayLabelInfo = $property->term();
+        } elseif ('vocab' === $labelInfo) {
+            $displayLabelInfo = $property->vocabulary()->label();
+        } else {
+            $displayLabelInfo = null;
+        }; ?>
+        <?php if ($displayLabelInfo) : ?>
+            <span class="field-term">(<?php echo $escape($displayLabelInfo); ?>)</span>
         <?php endif; ?>
+
         </dt>
         <?php foreach ($propertyValues as $value): ?>
             <?php
             $valueType = $value->type();
             $valueLang = $value->lang();
             $valueAnnotation = $value->valueAnnotation();
-            $class = ['value'];
+            $classValue = ['value'];
+            $classContent = ['value-content'];
+            $isExpandable = false;
             if ('resource' == $valueType || strpos($valueType, 'resource') !== false) {
-                $class[] = 'resource';
-                $class[] = $escape($value->valueResource()->resourceName());
+                $classValue[] = 'resource';
+                $classValue[] = $escape($value->valueResource()->resourceName());
             } elseif ('uri' == $valueType) {
-                $class[] = 'uri';
-            }
+                $classValue[] = 'uri';
+            };
+            if (in_array($propertyTerm, $expandableTerms)) {
+                $classContent[] = 'smalldesc';
+                $isExpandable = true;
+            };
             ?>
-            <dd class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($valueLang); ?>">
+            <dd class="<?php echo implode(' ', $classValue); ?>" lang="<?php echo $escape($valueLang); ?>">
+
                 <?php if ($showLocale && $valueLang): ?>
                 <span class="language"><?php echo $valueLang; ?></span>
                 <?php endif; ?>
-                <span class="value-content"><?php echo $filterLocale ? $value->asHtml($lang) : $value->asHtml(); ?></span>
+
+                <?php if ($isExpandable): ?>
+                <input type="checkbox" id="expend" />
+                <?php endif; ?>
+
+                <span class="<?php echo implode(' ', $classContent); ?>"><?php echo $filterLocale ? $value->asHtml($lang) : $value->asHtml(); ?></span>
+
+                <?php if ($isExpandable): ?>
+                <label for="expend">Afficher </label>
+                <?php endif; ?>
+
                 <?php if(!$value->isPublic()): ?>
                     <span class="o-icon-private" aria-role="tooltip" title="<?php echo $this->escapeHtml($translate('Private')); ?>" aria-label="<?php echo $this->escapeHtml($translate('Private')); ?>"></span>
                 <?php endif; ?>
+
                 <?php if ($valueAnnotation && $showValueAnnotations): ?>
                     <a href="#" class="<?php echo ('expanded' === $showValueAnnotations) ? 'collapse' : 'expand'; ?>" aria-label="<?php echo ('expanded' === $showValueAnnotations) ? $this->escapeHtml($translate('Collapse')) : $this->escapeHtml($translate('Expand')); ?>">
                         <span class="has-annotation o-icon-annotation" aria-role="tooltip" title="<?php echo $this->escapeHtml($translate('Has annotation')); ?>" aria-label="<?php echo $this->escapeHtml($translate('Has annotation')); ?>"></span>

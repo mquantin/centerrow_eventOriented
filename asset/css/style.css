@@ -1723,13 +1723,23 @@ textarea{
 }
 
 
+
+/* mq edits */
+
 .resource.show  dl{
-  background: #f2f2f2;
-  margin: 1rem;
+  background: whitesmoke;
   padding: 1rem; 
-  border-radius: 1rem; 
+  margin: 1em 0 2em 0;
+  border-radius: 1rem;
   border: solid 1px gray;
-  width: 48%;
+}
+
+.eventBloco h3 {
+  font-variant: small-caps;
+  text-align: center;
+  border-bottom: 1px solid gray;
+  padding: 0.5em;
+  margin-top: 0;
 }
 
 
@@ -1741,6 +1751,7 @@ textarea{
   max-height:100px;
   overflow:hidden;
   transition:all .3s ease;
+  display:inline-block;
 }
 #expend:checked + .smalldesc {
   max-height:1000px;  
