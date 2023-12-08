@@ -78,62 +78,51 @@ function writeEvent($event, $viewFile=null) {
     $eventURL = $event->url();
     $displayString = (key_exists($eventClassId, $eventClassId2categ)) ? $eventClassId2categ[$eventClassId] : $event->resourceClass()->label();
     ?>
-    <dl id = <?php echo $event->id()?> class="eventBloco">
+    <dl id = <?php echo ("linkedResource-" . $event->id())?> class="bloco linkedBloco">
+        <h3><?php echo $displayString?></h3>
         <?php
-        echo sprintf('<h3><a href=%s>%s</a></h3>', $eventURL, $displayString);
         echo $viewFile ? $event->displayValues(array('viewName' => $viewFile,)) : $event->displayValues();
         ?>
+        <div class="center"><a href=<?php echo $eventURL?> >plus d'info sur cette resource</a></div>
     </dl>
     <?php
 };
 ?>
 
 <!-- subject values printing -->
-<div id="linked-events" >
-    <div class="columnTitle">
-        Évenements liés à cet item
+<?php if (!$foundEvents): ?>
+    <div class="bloco" style= "display: flex;  align-items: center;">
+        <img src = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Flat_cross_icon.svg" alt="Nothing" style="height: 2rem; margin: 0 1rem"/> 
+        <span>Aucun évènement trouvé</span>
     </div>
+<?php else: ?>
+    <?php 
+    $itemClass = $resource->resourceClass()->term();
 
-    <?php if (!$foundEvents): ?>
-        <div class="bloco" style= "display: flex;  align-items: center;">
-            <img src = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Flat_cross_icon.svg" alt="Nothing" style="height: 2rem; margin: 0 1rem"/> 
-            <span>Aucun évènement trouvé</span>
-        </div>
-    <?php else: ?>
+    switch ($itemClass) {
+        case 'crm:E22_Human-Made_Object': $viewFile = 'common/resource-values_event-in-item'; break;
+        case 'crm:E21_Person':
+        case 'crm:E39_Actor':
+        case 'crm:E74_Group': $viewFile = 'common/resource-values_event-in-item'; break;
+        default : $viewFile = 'common/resource-values_event-in-item';
+    };
+
+    foreach ($foundEvents as $event) {
+        writeEvent($event, $viewFile);
+    };        
+    ?>
+<?php endif; ?>
+
+
+<?php if (!$otherLinkedItems): ?>
+    <div class="bloco" style= "display: flex;  align-items: center;">
+        <img src = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Flat_cross_icon.svg" alt="Nothing" style="height: 2rem; margin: 0 1rem"/> 
+        <span>Aucun autre élément associé trouvé</span>
+    </div>
+<?php else: ?>
         <?php 
-        $itemClass = $resource->resourceClass()->term();
-
-        switch ($itemClass) {
-            case 'crm:E22_Human-Made_Object': $viewFile = 'common/resource-values_event-in-item'; break;
-            case 'crm:E21_Person':
-            case 'crm:E39_Actor':
-            case 'crm:E74_Group': $viewFile = 'common/resource-values_event-in-item'; break;
-            default : $viewFile = 'common/resource-values_event-in-item';
+        foreach ($otherLinkedItems as $item) {
+            writeEvent($item);
         };
-
-        foreach ($foundEvents as $event) {
-            writeEvent($event, $viewFile);
-        };        
         ?>
-    <?php endif; ?>
-</div>
-
-
-<div id="other-linked-items" >
-<div class="columnTitle">
-        Autres éléments associés à cet item
-    </div>
-    <?php if (!$otherLinkedItems): ?>
-        <div class="bloco" style= "display: flex;  align-items: center;">
-            <img src = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Flat_cross_icon.svg" alt="Nothing" style="height: 2rem; margin: 0 1rem"/> 
-            <span>Aucun autre élément associé trouvé</span>
-        </div>
-    <?php else: ?>
-        <div id="other-linked-items" >
-            <?php 
-            foreach ($otherLinkedItems as $item) {
-                writeEvent($item);
-            };
-            ?>
-    <?php endif; ?>
-</div>
+<?php endif; ?>

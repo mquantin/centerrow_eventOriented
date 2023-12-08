@@ -1734,12 +1734,16 @@ textarea{
   border: solid 1px gray;
 }
 
-.eventBloco h3 {
+.resource.show  dl h3 {
   font-variant: small-caps;
   text-align: center;
   border-bottom: 1px solid gray;
   padding: 0.5em;
   margin-top: 0;
+}
+
+dl .center {
+  text-align: center;
 }
 
 
