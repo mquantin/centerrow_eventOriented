@@ -1126,7 +1126,7 @@ textarea{
 }
 @media screen{
   .property .value:not(:last-child){
-      margin-bottom:12px
+      margin-bottom:6px
   }
 }
 @media screen{
@@ -1749,6 +1749,38 @@ textarea{
 .resource.show .itemClass {
   margin-bottom: 1rem;
 }
+
+.resource.show #row {
+  display: flex;
+}
+
+.resource.show #columnA {
+  flex: 65;
+}
+
+
+.resource.show #columnB {
+  flex: 35;
+  margin-left:1%;
+}
+
+.columnTitle{
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.resource-list.grid li .resource-link {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+}
+
+.resource-list.grid li .resource-link .resource-name {
+  text-align:center;
+}
+
 
 
 /* handling description expand / collapse */
