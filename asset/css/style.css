@@ -1742,8 +1742,12 @@ textarea{
   margin-top: 0;
 }
 
-dl .center {
+.resource.show dl .center {
   text-align: center;
+}
+
+.resource.show .itemClass {
+  margin-bottom: 1rem;
 }
 
 
