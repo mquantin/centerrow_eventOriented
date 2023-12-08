@@ -11,12 +11,63 @@ $valueLang = $filterLocale ? [$lang, ''] : null;
 
 <?php $this->trigger('view.show.before'); ?>
 <?php 
-$blocos =  $this->resourcePageBlocks($item)->getBlocks();
-echo $blocos;
-
-
-
+// $blocos =  $this->resourcePageBlocks($item)->getBlocks();
+// echo $blocos;
+$blocks =  $this->resourcePageBlocks($item)->getBlocksList();
+foreach ($blocks as $blockName => $block){
+  echo $blockName;
+  echo $block;
+};
 ?>
+
+<?php 
+//uses a value representation + data in array as given by the values() function of AbstractResourceEntityRepresentation
+function writeValueofTerms($termsArray, $itemRep){
+    $allValues = $itemRep->values();
+    foreach($termsArray as $term){
+        $propValue = $allValues[$term];
+        if ($propValue){
+            ?>
+            <div id= <?php echo $term ?> class="property ">
+                <dt><?php echo $propValue['alternate_label']; ?></dt>
+                <?php foreach ($propValue['values'] as $value): ?>
+                    <dd class="value"><?php echo $value->asHtml(); ?></dd>
+                <?php endforeach; ?>
+            </div>
+            <?php
+        };
+    };
+};
+?>
+
+
+<!-- bloc de présentation des informations associées: item-set, see-also, documented in  -->
+<?php 
+$itemSets = $item->itemSets();
+$relatedTerms = array('rdfs:seeAlso', 'crm:P70i_is_documented_in',);
+$allValues = $item->values();
+if ($itemSets || array_intersect($relatedTerms, array_keys($allValues))): ?>
+<dl id="related">
+    <h3>Éléments associés</h3>
+    <div id= "o:item-set" class="property">
+        <dt>Collection(s) contenant l'objet</dt>
+        <?php foreach ($itemSets as $itemSet): ?>
+        <dd class="value">
+            <a href="<?php echo $this->escapeHtml($itemSet->url()); ?>"><?php echo $itemSet->displayTitle(null, $valueLang); ?></a>
+        </dd>
+        <?php endforeach; ?>
+    </div>
+    <?php 
+    writeValueofTerms($relatedTerms, $resource) 
+    ?>
+</dl>
+<?php endif; ?>
+
+
+
+
+
+
 
 
 
