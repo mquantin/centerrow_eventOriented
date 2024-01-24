@@ -1,5 +1,14 @@
+
 <?php 
 namespace OmekaTheme\Helper;
+
+
+//WARNING
+//THIS FILE IS NOT LOADED IT DOESNT WORKS, IS IS USELESS SINCE API CALLS ARE NOT POSSIBLE IN HELPERS
+
+
+
+
 
 use Laminas\View\Helper\AbstractHelper;
 
