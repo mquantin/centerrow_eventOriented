@@ -89,12 +89,16 @@ function writeEvent($event, $viewFile=null) {
 };
 ?>
 
+
+<div class="columnTitle">
+    ↓ Évenements du cycle de vie de l'item ↓
+</div>
+
 <!-- subject values printing -->
 <?php if (!$foundEvents): ?>
-    <div class="bloco" style= "display: flex;  align-items: center;">
-        <img src = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Flat_cross_icon.svg" alt="Nothing" style="height: 2rem; margin: 0 1rem"/> 
-        <span>Aucun évènement trouvé</span>
-    </div>
+    <dl id = "noEventWarning" class="bloco linkedBloco" >
+        <div class="center">Aucun évenement trouvé</div>
+    </dl>
 <?php else: ?>
     <?php 
     $itemClass = $resource->resourceClass()->term();
@@ -114,15 +118,13 @@ function writeEvent($event, $viewFile=null) {
 <?php endif; ?>
 
 
-<?php if (!$otherLinkedItems): ?>
-    <div class="bloco" style= "display: flex;  align-items: center;">
-        <img src = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Flat_cross_icon.svg" alt="Nothing" style="height: 2rem; margin: 0 1rem"/> 
-        <span>Aucun autre élément associé trouvé</span>
+<?php if ($otherLinkedItems): ?>
+    <div class="columnTitle">
+    ↓ Autres éléments associés trouvés ↓
     </div>
-<?php else: ?>
-        <?php 
-        foreach ($otherLinkedItems as $item) {
-            writeEvent($item);
-        };
-        ?>
+    <?php 
+    foreach ($otherLinkedItems as $item) {
+        writeEvent($item);
+    };
+    ?>
 <?php endif; ?>
