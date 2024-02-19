@@ -1073,8 +1073,9 @@ textarea{
 }
 @media screen{
   .property .field-term{
-      display:block;
-      font-size:18px
+      /* display:block; */
+      font-size:12px;
+      font-weight:lighter;
   }
 }
 @media screen{
