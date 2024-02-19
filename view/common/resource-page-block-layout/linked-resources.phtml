@@ -46,7 +46,8 @@ foreach ($resource->subjectValues() as $index => $subjectValues) {
                 $subjectResourceClassId = $subjectResource->resourceClass()->id();
                 $datelit = $subjectResource->value('crm:P4_has_time-span', ['literal']);
                 preg_match('/\d\d\d\d?/', $datelit, $date);
-                $dateindex = 100*$date[0];// ex: 194400 for 1944
+                // echo(print_r($date, TRUE));
+                $dateindex = empty($date) ? 0 : 100*$date[0] ;// ex: 194400 for 1944
                 if (in_array($subjectResourceClassId, array_keys($eventClassId2categ))){
                     while (key_exists($dateindex, $foundEvents)) {++$dateindex; };//if key allready in use (same date); then go to next index (194401 for example)
                     $foundEvents[$dateindex] = $subjectResource;
@@ -65,18 +66,19 @@ ksort($otherLinkedItems);
 //THIS IS NOT WORKING CAUSE HELPERS DOESN4T HAVE ACCESS TO API
 //[$foundEvents, $otherLinkedItems] = $this->SortLinkedResources($resource);
 
-function writeEvent($event, $viewFile=null) {
-    global $eventClassId2categ;
-    global $logger;
+
+
+function writeEvent($event, $eventClassId2categ=null, $viewFile=null) {
+//    echo json_encode($eventClassId2categ);
     $eventClass = $event->resourceClass();
     if (!isset($eventClass)){
         //$logger->info("no class found for this item (event): {$event->id()}");//TODO fix "Error: Using $this when not in object context"
         //TODO ecrire quelque chose dans la vue pour qu'on s'enn rende compte
         return;
     }
-    $eventClassId = $event->resourceClass()->id();
+    $eventClassId = $eventClass->id();
     $eventURL = $event->url();
-    $displayString = (key_exists($eventClassId, $eventClassId2categ)) ? $eventClassId2categ[$eventClassId] : $event->resourceClass()->label();
+    $displayString = (isset($eventClassId2categ) && key_exists($eventClassId, $eventClassId2categ)) ? $eventClassId2categ[$eventClassId] : $event->resourceClass()->label();
     ?>
     <dl id = <?php echo ("linkedResource-" . $event->id())?> class="bloco linkedBloco">
         <h3><?php echo $displayString?></h3>
@@ -112,7 +114,7 @@ function writeEvent($event, $viewFile=null) {
     };
 
     foreach ($foundEvents as $event) {
-        writeEvent($event, $viewFile);
+        writeEvent($event, $eventClassId2categ, $viewFile);
     };        
     ?>
 <?php endif; ?>
