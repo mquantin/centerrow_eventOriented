@@ -17,7 +17,7 @@ $blocks =  $this->resourcePageBlocks($item)->getBlocksList();
 function writeValueofTerms($termsArray, $itemRep){
     $allValues = $itemRep->values();
     foreach($termsArray as $term){
-        if (in_array($term, $allValues)){
+        if (array_key_exists($term, $allValues)){
           $propValue = $allValues[$term];
             ?>
             <div id= <?php echo $term ?> class="property ">
