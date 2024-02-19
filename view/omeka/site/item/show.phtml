@@ -17,8 +17,8 @@ $blocks =  $this->resourcePageBlocks($item)->getBlocksList();
 function writeValueofTerms($termsArray, $itemRep){
     $allValues = $itemRep->values();
     foreach($termsArray as $term){
-        $propValue = $allValues[$term];
-        if ($propValue){
+        if (in_array($term, $allValues)){
+          $propValue = $allValues[$term];
             ?>
             <div id= <?php echo $term ?> class="property ">
                 <dt><?php echo $propValue['alternate_label']; ?></dt>
