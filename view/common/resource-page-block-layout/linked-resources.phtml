@@ -2,9 +2,11 @@
 //les classes sont regroupées par catégories puisque omeka-s ne propose pas de gérer l'héritage de classes
 //j'ai choisi de réunir par classes plus que par propriété car par exemple la classe "acquisition" pourra être montré sur une fiche E22HMO et une fiche E21Person (donc appelé par des props différentes); 
 $displayedEventsMapping = array(
+    'Conception' => array('crm:E65_Creation'),
     'Production' => array('crm:E12_Production',),
     'Modification' => array('crm:E11_Modification', 'crm:E79_Part_Addition', 'crm:E80_Part_Removal'),
     'Acquisition' => array('crm:E8_Acquisition', 'crm:E96_Purchase', 'crm:E10_Transfer_of_Custody'),
+    'Destruction' => array('crm:E6_Destruction', 'crm:E64_End_of_Existence', 'crm:E81_Transformation'),
 );
 //mapping of class id with categories
 $eventClassId2categ = array();
