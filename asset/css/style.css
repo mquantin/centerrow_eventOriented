@@ -1780,31 +1780,8 @@ textarea{
 
 
 
-/* handling description expand / collapse */
-#expend {
-  display:none;  
-}
-#expend + .smalldesc {
-  max-height:100px;
+/* handling readmore expand / collapse */
+dd.value div{
   overflow:hidden;
-  transition:all .3s ease;
-  display:inline-block;
 }
-#expend:checked + .smalldesc {
-  max-height:1000px;  
-  max-height:fit-content;  
-}
-label {
-  text-decoration:underline;
-  cursor:pointer;
-}
-#expend ~ label::after {
-  content: "plus ..."; 
-}
-#expend:checked ~ label::after {
-  content: "moins ..."; 
-}
-label:hover {
-  text-decoration:none;  
-}
-/* end of handling description expand / collapse */
+/* end of handling readmore expand / collapse */

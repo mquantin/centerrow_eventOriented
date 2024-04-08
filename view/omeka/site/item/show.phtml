@@ -8,6 +8,7 @@ $filterLocale = (bool) $this->siteSetting('filter_locale_values');
 $lang = $this->lang();
 $valueLang = $filterLocale ? [$lang, ''] : null;
 $blocks =  $this->resourcePageBlocks($item)->getBlocksList();
+$this->headScript()->prependFile($this->assetUrl('js/readmore.js'));
 ?>
 <?php echo $this->pageTitle($item->displayTitle(null, $valueLang), 2); ?>
 
