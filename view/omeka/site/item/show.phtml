@@ -1,4 +1,5 @@
 <?php
+$layoutSetting = $this->themeSetting('media_caption');
 $escape = $this->plugin('escapeHtml');
 $translate = $this->plugin('translate');
 $this->headLink()->appendStylesheet($this->assetUrl('css/resource-page-blocks.css', 'Omeka'));
@@ -11,6 +12,8 @@ $blocks =  $this->resourcePageBlocks($item)->getBlocksList();
 <?php echo $this->pageTitle($item->displayTitle(null, $valueLang), 2); ?>
 
 <?php $this->trigger('view.show.before'); ?>
+
+
 
 <?php 
 //uses a value representation + data in array as given by the values() function of AbstractResourceEntityRepresentation

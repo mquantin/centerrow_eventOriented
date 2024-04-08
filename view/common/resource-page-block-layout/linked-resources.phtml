@@ -1,4 +1,5 @@
 <?php
+$layoutSetting = $this->themeSetting('media_caption');
 //les classes sont regroupées par catégories puisque omeka-s ne propose pas de gérer l'héritage de classes
 //j'ai choisi de réunir par classes plus que par propriété car par exemple la classe "acquisition" pourra être montré sur une fiche E22HMO et une fiche E21Person (donc appelé par des props différentes); 
 $displayedEventsMapping = array(
@@ -128,7 +129,7 @@ function writeEvent($event, $eventClassId2categ=null, $viewFile=null) {
     </div>
     <?php 
     foreach ($otherLinkedItems as $item) {
-        writeEvent($item);
+        writeEvent($item, null, $viewFile);
     };
     ?>
 <?php endif; ?>
