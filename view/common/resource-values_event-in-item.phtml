@@ -17,15 +17,12 @@ if ($this->status()->isSiteRequest()) {
 }
 ?>
 <?php
-$propertiesNotDisplayed = array('skos:prefLabel', 'crm:P31_has_modified', 'crm:P108_has_produced', 'crm:P24_transferred_title_of', 'crms:P1_has_conceived');
+$propertiesNotDisplayed = array('skos:prefLabel', 'crm:P31_has_modified', 'crm:P108_has_produced', 'crm:P24_transferred_title_of', 'crms:P1_has_conceived');//TODO could we remove this list? how to know what was the property that triggerred the event link? this is the one that should be filtered !
 ?>
 
-<?php foreach ($values as $term => $propertyData): ?>
-    <?php if (in_array($propertyData['property']->term(), $propertiesNotDisplayed) == false) : ?>
-    <?php 
-        $propertyLabel = $propertyData['alternate_label'] ?: $translate($property->label());
-        echo $this->OnePropValues($propertyData['property'], $propertyData['values'], $propertyLabel, $labelInfo, $showLocale, $filterLocale, $lang);
-    ?>
-    
-    <?php endif; ?>
-<?php endforeach; ?>
+<?php 
+foreach ($values as $term => $propertyData){
+    if (in_array($propertyData['property']->term(), $propertiesNotDisplayed)) continue;
+    echo $this->OnePropValues($propertyData, $labelInfo, $showLocale, $filterLocale, $lang);
+}; 
+?>

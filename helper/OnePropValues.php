@@ -4,12 +4,23 @@ namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
 class OnePropValues extends AbstractHelper
-{
-    public function __invoke($property, $propertyValues, $propertyLabel, $labelInfo, $showLocale, $filterLocale = False, $lang=Null, $showValueAnnotations = False ) 
+{   
+    public function __invoke($propertyData, $labelInfo, $showLocale, $filterLocale = False, $lang=Null, $showValueAnnotations = False ) 
     {
+        $filterLocaleCallback = function ($value) use ($lang) {
+            $valueLang = $value->lang();
+            return $valueLang == '' || strcasecmp($valueLang, $lang) === 0;
+        };
+
         $view = $this->getView();
         $escape = $view->plugin('escapeHtml');
         $translate = $view->plugin('translate');
+        $property = $propertyData['property'];
+        $propertyValues = $propertyData['values'];
+        $propertyLabel = $propertyData['alternate_label'] ?: $translate($property->label());
+        if ($filterLocale) {
+            $propertyValues = array_filter($propertyValues, $filterLocaleCallback);
+        };
         $html = "<div class='property' id = {$property->term()}>";
         $html .= "<dt> {$propertyLabel}";
             if ('term' === $labelInfo) {

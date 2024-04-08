@@ -15,10 +15,6 @@ if ($this->status()->isSiteRequest()) {
     $lang = null;
     $showValueAnnotations = true;
 }
-$filterLocaleCallback = function ($value) use ($lang) {
-    $valueLang = $value->lang();
-    return $valueLang == '' || strcasecmp($valueLang, $lang) === 0;
-};
 ?>
 
 <?php
@@ -35,11 +31,7 @@ foreach ($values as $term => $propertyData):
     if (!$propertyValues) continue;
     $property = $propertyData['property'];
     if (in_array($property->term(), $propertiesNotDisplayed)) continue;
-    if ($filterLocale) {
-        $propertyValues = array_filter($propertyValues, $filterLocaleCallback);
-    };
-    $propertyLabel = $propertyData['alternate_label'] ?: $translate($property->label());
-    echo $this->OnePropValues($property, $propertyValues, $propertyLabel, $labelInfo, $showLocale, $filterLocale, $lang, $showValueAnnotations);
+    echo $this->OnePropValues($propertyData, $labelInfo, $showLocale, $filterLocale, $lang, $showValueAnnotations);
     ?>
 <?php endforeach; ?>
 </dl>
