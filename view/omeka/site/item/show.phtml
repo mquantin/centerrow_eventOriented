@@ -55,7 +55,13 @@ ob_start();?>
         <?php endforeach; ?>
     </div>
     <?php 
-    writeValueofTerms($relatedTerms, $resource) 
+    writeValueofTerms($relatedTerms, $resource);
+    // foreach($termsArray as $term){
+    //   if (array_key_exists($term, $allValues)){
+    //     //find propertyRepresentation (from the writeValueofTerms)
+    //     $propertyValues = $allValues[$term];
+    //     echo $this->OnePropValues($property, $propertyValues, $propertyLabel, $labelInfo, $showLocale, $filterLocale, $lang, $showValueAnnotations);
+    // }
     ?>
 </dl>
 <?php 
@@ -86,12 +92,15 @@ mise à jour, creation, personnes, dates, etc.  -->
       $allrightsHoldersValues = array();
       $alt_label = null;
       foreach ($item->media() as $media):
-          $allValues = $media->values();//all metadata of 1 media
+          $mediaValues = $media->values();//all metadata of 1 media
           // $this->logger()->info(json_encode($allValues));
-          if (isset($allValues['dcterms:rightsHolder'])){
-              array_push($allrightsHoldersValues, ...$allValues['dcterms:rightsHolder']['values']);//add all values for dc:rightsHolder for 1 media
-              if(!isset($alt_label)){ 
-                  $alt_label = $allValues['dcterms:rightsHolder']['alternate_label'];//get the alternate label declared, on the first loop only
+          if (isset($mediaValues['dcterms:rightsHolder'])){
+              $rightHoldersValues = $mediaValues['dcterms:rightsHolder']['values'];
+              array_push($allrightsHoldersValues, ...$rightHoldersValues);//add all values for dc:rightsHolder for 1 media
+              if(!isset($alt_label)){
+                $alt_label = json_encode($rightHoldersValues);
+                //$alt_label = isset($mediaValues['dcterms:rightsHolder']['alternate_label']) ? $mediaValues['dcterms:rightsHolder']['alternate_label'] : $mediaValues['dcterms:rightsHolder']['o:local_name'];//get the alternate label declared, on the first loop only
+
               }
           };
       endforeach;
