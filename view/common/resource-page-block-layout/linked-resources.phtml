@@ -1,14 +1,28 @@
 <?php
-$layoutSetting = $this->themeSetting('media_caption');
+$orderEventsPropTerm = $this->themeSetting('order_events');
 //les classes sont regroupées par catégories puisque omeka-s ne propose pas de gérer l'héritage de classes
 //j'ai choisi de réunir par classes plus que par propriété car par exemple la classe "acquisition" pourra être montré sur une fiche E22HMO et une fiche E21Person (donc appelé par des props différentes); 
-$displayedEventsMapping = array(
-    'Conception' => array('crm:E65_Creation'),
-    'Production' => array('crm:E12_Production',),
-    'Modification' => array('crm:E11_Modification', 'crm:E79_Part_Addition', 'crm:E80_Part_Removal'),
-    'Acquisition' => array('crm:E8_Acquisition', 'crm:E96_Purchase', 'crm:E10_Transfer_of_Custody'),
-    'Destruction' => array('crm:E6_Destruction', 'crm:E64_End_of_Existence', 'crm:E81_Transformation'),
-);
+$events_mapping = $this->themeSetting('events_mapping');
+$eventTypes = explode("\n", $events_mapping);
+$displayedEventsMapping0 = array();
+foreach ($eventTypes as $eventType){
+    $spltd  = preg_split("/\s*>\s*/", $eventType);
+    $eventClassLabel = trim($spltd[0]);
+    $eventClasses = preg_split("/[,;]/", $spltd[1]);
+    $displayedEventsMapping[$eventClassLabel] = array_map('trim', $eventClasses);
+};
+
+
+
+
+
+// $displayedEventsMapping = array(
+//     'Conception' => array('crm:E65_Creation'),
+//     'Production' => array('crm:E12_Production',),
+//     'Modification' => array('crm:E11_Modification', 'crm:E79_Part_Addition', 'crm:E80_Part_Removal'),
+//     'Acquisition' => array('crm:E8_Acquisition', 'crm:E96_Purchase', 'crm:E10_Transfer_of_Custody'),
+//     'Destruction' => array('crm:E6_Destruction', 'crm:E64_End_of_Existence', 'crm:E81_Transformation'),
+// );
 //mapping of class id with categories
 $eventClassId2categ = array();
 foreach($displayedEventsMapping as $eventCategory=>$eventClassTermArray){
@@ -47,7 +61,7 @@ foreach ($resource->subjectValues() as $index => $subjectValues) {
             $subjectResource = $subjectValue['val']->resource();
             if ($subjectResource->getControllerName($subjectResource) === 'item'){//if the linked item is not a media (through RightsHolder property)
                 $subjectResourceClassId = $subjectResource->resourceClass()->id();
-                $datelit = $subjectResource->value('crm:P4_has_time-span', ['literal']);
+                $datelit = $subjectResource->value($orderEventsPropTerm, ['literal']);
                 preg_match('/\d\d\d\d?/', $datelit, $date);
                 // echo(print_r($date, TRUE));
                 $dateindex = empty($date) ? 0 : 100*$date[0] ;// ex: 194400 for 1944

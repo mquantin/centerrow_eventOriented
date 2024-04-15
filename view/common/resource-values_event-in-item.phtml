@@ -1,26 +1,32 @@
 <?php
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
-//$labelInfo = $this->siteSetting('property_label_information');
-$labelInfo = False;
+$hiddenTermsInEvents = $this->themeSetting('hidden_terms_in_events');
+$labelInfoEvent = $this->themeSetting('label_info_in_events');
 
 if ($this->status()->isSiteRequest()) {
     $showLocale = (bool) $this->siteSetting('show_locale_label', true);
     $filterLocale = $this->siteSetting('filter_locale_values');
     $lang = $this->lang();
     $showValueAnnotations = (bool) $this->siteSetting('show_value_annotations', false);
+    $labelInfoItem = $this->siteSetting('property_label_information');
 } else {
     $showLocale = true;
     $filterLocale = false;
     $lang = null;
     $showValueAnnotations = true;
+    $labelInfoItem = 'term';
 }
-?>
-<?php
-$propertiesNotDisplayed = array('skos:prefLabel', 'crm:P31_has_modified', 'crm:P108_has_produced', 'crm:P24_transferred_title_of', 'crms:P1_has_conceived');//TODO could we remove this list? how to know what was the property that triggerred the event link? this is the one that should be filtered !
-?>
 
-<?php 
+if ($labelInfoEvent == 'asItem'){
+    $labelInfo = $labelInfoItem;
+} else {
+    $labelInfo = False;
+}
+
+$propertiesNotDisplayed = preg_split("/[;,]\s?/", $hiddenTermsInEvents);
+//TODO could we remove this list? how to know what was the property that triggerred the event link? this is the one that should be filtered !
+
 foreach ($values as $term => $propertyData){
     if (in_array($propertyData['property']->term(), $propertiesNotDisplayed)) continue;
     echo $this->OnePropValues($propertyData, $labelInfo, $showLocale, $filterLocale, $lang);
