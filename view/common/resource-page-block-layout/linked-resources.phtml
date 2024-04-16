@@ -8,6 +8,7 @@ $lifecycle_column_text = $this->themeSetting('lifecycle_column_text');
 $events_mapping = $this->themeSetting('events_mapping');
 $eventTypes = explode("\n", $events_mapping);
 foreach ($eventTypes as $eventType){
+    if (empty($eventType)) continue;
     $spltd  = explode(">", $eventType);
     $spltd = array_map('trim', $spltd);
     $eventClassLabel = trim($spltd[0]);
