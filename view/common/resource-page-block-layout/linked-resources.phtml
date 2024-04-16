@@ -60,7 +60,8 @@ foreach ($resource->subjectValues() as $index => $subjectValues) {
             if(++$j > $max_itemPerTerm) break;//max item analyzed per term
             // $this->logger()->info(json_encode($subjectValue['val']->resource()));
             $subjectResource = $subjectValue['val']->resource();
-            if ($subjectResource->getControllerName($subjectResource) === 'item'){//if the linked item is not a media (through RightsHolder property)
+            //echo $subjectValue->isPublic();
+            if ($subjectResource->getControllerName($subjectResource) === 'item' && $subjectValue['val']->isPublic()){//if the linked item is not a media (through RightsHolder property)
                 $subjectResourceClassId = $subjectResource->resourceClass()->id();
                 $datelit = $subjectResource->value($orderEventsPropTerm, ['literal']);
                 preg_match('/\d\d\d\d?/', $datelit, $date);
@@ -68,10 +69,9 @@ foreach ($resource->subjectValues() as $index => $subjectValues) {
                 $dateindex = empty($date) ? 0 : 100*$date[0] ;// ex: 194400 for 1944
                 if (in_array($subjectResourceClassId, array_keys($eventClassId2categ))){
                     //manage case with no date. Objective: basic order by order of the displayedEventsMapping : conception then production then modification, then etc.
-                    
                     while (key_exists($dateindex, $foundEvents)) {++$dateindex; };//if key allready in use (same date); then go to next index (194401 for example)
                     $foundEvents[$dateindex] = $subjectResource;
-                } else {
+                } else  {
                     while (key_exists($dateindex, $otherLinkedItems)) {++$dateindex; };
                     $otherLinkedItems[$dateindex] = $subjectResource;
                 };
@@ -136,7 +136,7 @@ endif; ?>
     </div>
     <?php 
     foreach ($otherLinkedItems as $item) {
-        writeEvent($item, $more_info_event_text, null, $viewFile);
+        writeEvent($item, $more_info_event_text, null, 'common/resource-values_event-in-item');
     };
     ?>
 <?php endif; ?>
