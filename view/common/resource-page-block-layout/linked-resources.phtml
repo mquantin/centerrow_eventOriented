@@ -82,8 +82,13 @@ foreach ($resource->subjectValues() as $index => $subjectValues) {
         };
     }  
 };
-ksort($orderedEvents);
-ksort($otherLinkedItems);
+if (isset($orderedEvents)) {
+    ksort($orderedEvents);
+};
+if (isset($otherLinkedItems)) {
+    ksort($otherLinkedItems);
+};
+
 
 
 
@@ -140,7 +145,7 @@ endif; ?>
     </div>
     <?php 
     foreach ($otherLinkedItems as $item) {
-        writeEvent($item, $more_info_event_text, null, 'common/resource-values_event-in-item');
+        writeEvent($item, $more_info_event_text, null, 'common/resource-values_other-in-item');
     };
     ?>
 <?php endif; ?>

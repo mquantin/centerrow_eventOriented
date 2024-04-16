@@ -1,0 +1,35 @@
+<?php
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$showTermsInOtherRelated = $this->themeSetting('show_terms_in_other_related');
+$labelInfoEvent = $this->themeSetting('label_info_in_events');
+
+if ($this->status()->isSiteRequest()) {
+    $showLocale = (bool) $this->siteSetting('show_locale_label', true);
+    $filterLocale = $this->siteSetting('filter_locale_values');
+    $lang = $this->lang();
+    $showValueAnnotations = (bool) $this->siteSetting('show_value_annotations', false);
+    $labelInfoItem = $this->siteSetting('property_label_information');
+} else {
+    $showLocale = true;
+    $filterLocale = false;
+    $lang = null;
+    $showValueAnnotations = true;
+    $labelInfoItem = 'term';
+}
+
+if ($labelInfoEvent == 'asItem'){
+    $labelInfo = $labelInfoItem;
+} else {
+    $labelInfo = False;
+}
+
+$propertiesToDisplay = preg_split("/[;,]/", $showTermsInOtherRelated);
+$propertiesToDisplay = array_map('trim', $propertiesToDisplay);
+
+foreach ($values as $term => $propertyData){
+    if (in_array($propertyData['property']->term(), $propertiesToDisplay) || empty($propertiesToDisplay[0]) ) {
+        echo $this->OnePropValues($propertyData, $labelInfo, $showLocale, $filterLocale, $lang);
+    }
+};
+?>
