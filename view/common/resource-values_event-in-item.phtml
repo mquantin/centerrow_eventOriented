@@ -1,7 +1,7 @@
 <?php
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
-$hiddenTermsInEvents = $this->themeSetting('hidden_terms_in_events');
+$showTermsInEvents = $this->themeSetting('show_terms_in_events');
 $labelInfoEvent = $this->themeSetting('label_info_in_events');
 
 if ($this->status()->isSiteRequest()) {
@@ -24,11 +24,12 @@ if ($labelInfoEvent == 'asItem'){
     $labelInfo = False;
 }
 
-$propertiesNotDisplayed = preg_split("/[;,]\s?/", $hiddenTermsInEvents);
-//TODO could we remove this list? how to know what was the property that triggerred the event link? this is the one that should be filtered !
+$propertiesToDisplay = preg_split("/[;,]/", $showTermsInEvents);
+$propertiesToDisplay = array_map('trim', $propertiesToDisplay);
 
 foreach ($values as $term => $propertyData){
-    if (in_array($propertyData['property']->term(), $propertiesNotDisplayed)) continue;
-    echo $this->OnePropValues($propertyData, $labelInfo, $showLocale, $filterLocale, $lang);
+    if (in_array($propertyData['property']->term(), $propertiesToDisplay) || empty($propertiesToDisplay[0]) ) {
+        echo $this->OnePropValues($propertyData, $labelInfo, $showLocale, $filterLocale, $lang);
+    }
 }; 
 ?>

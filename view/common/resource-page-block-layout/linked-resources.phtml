@@ -8,7 +8,8 @@ $lifecycle_column_text = $this->themeSetting('lifecycle_column_text');
 $events_mapping = $this->themeSetting('events_mapping');
 $eventTypes = explode("\n", $events_mapping);
 foreach ($eventTypes as $eventType){
-    $spltd  = preg_split("/\s*>\s*/", $eventType);
+    $spltd  = explode(">", $eventType);
+    $spltd = array_map('trim', $spltd);
     $eventClassLabel = trim($spltd[0]);
     $eventClasses = preg_split("/[,;]/", $spltd[1]);
     $displayedEventsMapping[$eventClassLabel] = array_map('trim', $eventClasses);
@@ -35,7 +36,8 @@ foreach($displayedEventsMapping as $eventCategory=>$eventClassTermArray){
 };
 
 //because they are allready show in the box 'associated elemtns' they won't appear in the linked resources
-$skippedPropsList = preg_split("/[;,]\s?/", $related_info_terms);
+$skippedPropsList = preg_split("/[;,]/", $related_info_terms);
+$skippedPropsList = array_map('trim', $skippedPropsList);
 $skippedPropsIdList = array();
 foreach($skippedPropsList as $skipedPropTerm){
     $skippedPropId = $this->api()->searchOne('properties', ['term'=>$skipedPropTerm])->getContent()->id();
@@ -54,23 +56,23 @@ $maxTerm = 20;
 $max_itemPerTerm = 8;
 foreach ($resource->subjectValues() as $index => $subjectValues) {
     if(++$i > $maxTerm) break;//max terms analyzed
-    $termID = explode('-',$index)[0];
-    if (!in_array($termID, $skippedPropsIdList)){//the prop is not among the forbidden ones
+    $propID = explode('-',$index)[0];
+    if (!in_array($propID, $skippedPropsIdList)){//the prop is not among the forbidden ones
         foreach ($subjectValues as $subjectValue) {
             if(++$j > $max_itemPerTerm) break;//max item analyzed per term
-            // $this->logger()->info(json_encode($subjectValue['val']->resource()));
             $subjectResource = $subjectValue['val']->resource();
-            //echo $subjectValue->isPublic();
-            if ($subjectResource->getControllerName($subjectResource) === 'item' && $subjectValue['val']->isPublic()){//if the linked item is not a media (through RightsHolder property)
+            // echo json_encode($subjectValue);
+            if ($subjectResource->getControllerName($subjectResource) === 'item' && $subjectValue['val']->isPublic()){//if the linked item is not a media (through RightsHolder property) and the lin property is public
                 $subjectResourceClassId = $subjectResource->resourceClass()->id();
                 $datelit = $subjectResource->value($orderEventsPropTerm, ['literal']);
                 preg_match('/\d\d\d\d?/', $datelit, $date);
-                // echo(print_r($date, TRUE));
                 $dateindex = empty($date) ? 0 : 100*$date[0] ;// ex: 194400 for 1944
                 if (in_array($subjectResourceClassId, array_keys($eventClassId2categ))){
                     //manage case with no date. Objective: basic order by order of the displayedEventsMapping : conception then production then modification, then etc.
+                    $propTerm = $this->api()->searchOne('properties', ['id'=>$propID])->getContent()->term();
                     while (key_exists($dateindex, $foundEvents)) {++$dateindex; };//if key allready in use (same date); then go to next index (194401 for example)
-                    $foundEvents[$dateindex] = $subjectResource;
+                    $foundEvents[$propTerm] = $subjectResource;
+                    $orderedEvents[$dateindex] = $subjectResource;
                 } else  {
                     while (key_exists($dateindex, $otherLinkedItems)) {++$dateindex; };
                     $otherLinkedItems[$dateindex] = $subjectResource;
@@ -80,9 +82,8 @@ foreach ($resource->subjectValues() as $index => $subjectValues) {
         };
     }  
 };
-ksort($foundEvents);
+ksort($orderedEvents);
 ksort($otherLinkedItems);
-
 
 
 
@@ -124,7 +125,10 @@ function writeEvent($event, $more_info_event_text, $eventClassId2categ=null, $vi
         <div class="center">Aucun évenement trouvé</div>
     </dl>
 <?php else: 
-    foreach ($foundEvents as $event) {
+    foreach ($foundEvents as $propTerm=>$event) {
+        //this remove the property that does the link between the item and the event (ex: has produced). 
+        //because this link is obvious, there is no need to write it in the event in item page.
+        $event->unsetTerm($propTerm);
         writeEvent($event, $more_info_event_text, $eventClassId2categ, 'common/resource-values_event-in-item');
     };        
 endif; ?>

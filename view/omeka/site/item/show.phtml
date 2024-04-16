@@ -41,7 +41,8 @@ function writeValueofTerms($termsArray, $itemRep){
 <!-- bloc de présentation des informations associées: item-set, see-also, documented in  -->
 <?php 
 $itemSets = $item->itemSets();
-$relatedInfoTerms = preg_split("/[;,]\s?/", $related_info_terms);
+$relatedInfoTerms = preg_split("/[;,]/", $related_info_terms);
+$relatedInfoTerms = array_map('trim', $relatedInfoTerms);
 $allValues = $item->values();
 if ($itemSets || array_intersect($relatedInfoTerms, array_keys($allValues))): 
 ob_start();?>
