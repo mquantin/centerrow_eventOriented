@@ -1,6 +1,8 @@
 <?php
 $related_info_terms = $this->themeSetting('related_terms');//they wont create new linked resources
 $orderEventsPropTerm = $this->themeSetting('order_events');
+$more_info_event_text = $this->themeSetting('more_info_event_text');
+$lifecycle_column_text = $this->themeSetting('lifecycle_column_text');
 //les classes sont regroupées par catégories puisque omeka-s ne propose pas de gérer l'héritage de classes
 //j'ai choisi de réunir par classes plus que par propriété car par exemple la classe "acquisition" pourra être montré sur une fiche E22HMO et une fiche E21Person (donc appelé par des props différentes); 
 $events_mapping = $this->themeSetting('events_mapping');
@@ -84,7 +86,7 @@ ksort($otherLinkedItems);
 
 
 
-function writeEvent($event, $eventClassId2categ=null, $viewFile=null) {
+function writeEvent($event, $more_info_event_text, $eventClassId2categ=null, $viewFile=null) {
 //    echo json_encode($eventClassId2categ);
     $eventClass = $event->resourceClass();
     if (!isset($eventClass)){
@@ -101,7 +103,11 @@ function writeEvent($event, $eventClassId2categ=null, $viewFile=null) {
         <?php
         echo $viewFile ? $event->displayValues(array('viewName' => $viewFile,)) : $event->displayValues();
         ?>
-        <div class="center"><a href=<?php echo $eventURL?> >plus d'info sur cette resource</a></div>
+        <div class="more-info">
+            <a href=<?php echo $eventURL?>> 
+            + <span id="hide"> &nbsp;<?php echo $more_info_event_text ?> </span>
+            </a>
+        </div>
     </dl>
     <?php
 };
@@ -109,7 +115,7 @@ function writeEvent($event, $eventClassId2categ=null, $viewFile=null) {
 
 
 <div class="columnTitle">
-    ↓ Évenements du cycle de vie de l'item ↓
+    <?php echo $lifecycle_column_text ?>
 </div>
 
 <!-- subject values printing -->
@@ -119,7 +125,7 @@ function writeEvent($event, $eventClassId2categ=null, $viewFile=null) {
     </dl>
 <?php else: 
     foreach ($foundEvents as $event) {
-        writeEvent($event, $eventClassId2categ, 'common/resource-values_event-in-item');
+        writeEvent($event, $more_info_event_text, $eventClassId2categ, 'common/resource-values_event-in-item');
     };        
 endif; ?>
 
@@ -130,7 +136,7 @@ endif; ?>
     </div>
     <?php 
     foreach ($otherLinkedItems as $item) {
-        writeEvent($item, null, $viewFile);
+        writeEvent($item, $more_info_event_text, null, $viewFile);
     };
     ?>
 <?php endif; ?>

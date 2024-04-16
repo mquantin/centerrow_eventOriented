@@ -1076,6 +1076,8 @@ textarea{
       /* display:block; */
       font-size:12px;
       font-weight:lighter;
+      color: darkgrey;
+      margin-left: 0.5em;
   }
 }
 @media screen{
@@ -1743,8 +1745,22 @@ textarea{
   margin-top: 0;
 }
 
-.resource.show dl .center {
-  text-align: center;
+.resource.show dl .more-info {
+  cursor: default;
+  text-align: right;
+}
+
+.resource.show dl .more-info #hide {
+  display: inline-block;
+  max-width: 0%;
+  vertical-align: bottom;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.6s ease-in-out;
+}
+
+.resource.show dl .more-info:hover #hide {
+  max-width: 100%;
 }
 
 .resource.show #row {

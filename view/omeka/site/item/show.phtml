@@ -1,5 +1,6 @@
 <?php
 $related_info_terms = $this->themeSetting('related_terms');
+$media_rightsHolder_term = $this->themeSetting('media_rightsHolder_term');
 $escape = $this->plugin('escapeHtml');
 $translate = $this->plugin('translate');
 $this->headLink()->appendStylesheet($this->assetUrl('css/resource-page-blocks.css', 'Omeka'));
@@ -83,25 +84,23 @@ mise à jour, creation, personnes, dates, etc.  -->
   </div>
   <div id = "mediaRightsHolders" class="property">
       <?php 
+      //bricolage qui affiche les personnes créditées par les média liés à l'item
       $allrightsHoldersValues = array();
-      $alt_label = null;
+      $rightsHoldersLabel = null;
       foreach ($item->media() as $media):
           $mediaValues = $media->values();//all metadata of 1 media
-          // $this->logger()->info(json_encode($allValues));
-          if (isset($mediaValues['dcterms:rightsHolder'])){
-              $rightHoldersValues = $mediaValues['dcterms:rightsHolder']['values'];
+          if (isset($mediaValues[$media_rightsHolder_term])){
+              $rightHoldersValues = $mediaValues[$media_rightsHolder_term]['values'];
               array_push($allrightsHoldersValues, ...$rightHoldersValues);//add all values for dc:rightsHolder for 1 media
-              if(!isset($alt_label)){
-                $alt_label = json_encode($rightHoldersValues);
-                //$alt_label = isset($mediaValues['dcterms:rightsHolder']['alternate_label']) ? $mediaValues['dcterms:rightsHolder']['alternate_label'] : $mediaValues['dcterms:rightsHolder']['o:local_name'];//get the alternate label declared, on the first loop only
-
+              if(!isset($rightsHoldersLabel)){//on the first loop only
+                $rightsHoldersLabel = isset($mediaValues[$media_rightsHolder_term]['alternate_label']) ? $mediaValues[$media_rightsHolder_term]['alternate_label'] : $translate($mediaValues[$media_rightsHolder_term]['property']->label());
               }
           };
       endforeach;
       if ($allrightsHoldersValues){
           ?>
           <div class="property ">
-            <dt><?php echo $alt_label; ?></dt>
+            <dt><?php echo $rightsHoldersLabel; ?></dt>
               <?php foreach(array_unique($allrightsHoldersValues) as $rightHolder):
                     ?>
                   <dd class="value"><?php echo $rightHolder->asHtml(); ?></dd>
