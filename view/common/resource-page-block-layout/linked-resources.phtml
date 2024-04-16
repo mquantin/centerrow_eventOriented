@@ -36,7 +36,7 @@ foreach($displayedEventsMapping as $eventCategory=>$eventClassTermArray){
     }
 };
 
-//because they are allready show in the box 'associated elemtns' they won't appear in the linked resources
+//skip these props, because they are allready show in the box 'associated elemtns' they won't appear in the linked resources side panel
 $skippedPropsList = preg_split("/[;,]/", $related_info_terms);
 $skippedPropsList = array_map('trim', $skippedPropsList);
 $skippedPropsIdList = array();
@@ -51,6 +51,7 @@ $otherLinkedItems = array();
 
 //this should be split into 2: find events and categorize events
 //this finds the linked resources and order them by date (time_span)
+//TODO order event with no date. Order according to the displayedEventsMapping
 $i=0;
 $j=0;
 $maxTerm = 20;
