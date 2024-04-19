@@ -48,6 +48,14 @@ foreach($skippedPropsList as $skipedPropTerm){
 $foundEvents = array();
 $otherLinkedItems = array();
 
+function getDateIndex($resource, $dateterm){
+    $datelit = $resource->value($dateterm, ['literal']);
+    if (empty($datelit)) return 0;
+    preg_match('/\d\d\d\d?/', $datelit, $date);
+    $dateindex = empty($date) ? 0 : 100*$date[0] ;// ex: 194400 for 1944
+    return $dateindex;
+}
+
 
 //this should be split into 2: find events and categorize events
 //this finds the linked resources and order them by date (time_span)
@@ -56,33 +64,29 @@ $i=0;
 $j=0;
 $maxTerm = 20;
 $max_itemPerTerm = 8;
-foreach ($resource->subjectValues() as $index => $subjectValues) {
+foreach ($resource->subjectValues() as $subjectValues) {
     if(++$i > $maxTerm) break;//max terms analyzed
-    $propID = explode('-',$index)[0];
-    if (!in_array($propID, $skippedPropsIdList)){//the prop is not among the forbidden ones
-        foreach ($subjectValues as $subjectValue) {
-            if(++$j > $max_itemPerTerm) break;//max item analyzed per term
-            $subjectResource = $subjectValue['val']->resource();
-            // echo json_encode($subjectValue);
-            if ($subjectResource->getControllerName($subjectResource) === 'item' && $subjectValue['val']->isPublic()){//if the linked item is not a media (through RightsHolder property) and the lin property is public
-                $subjectResourceClassId = $subjectResource->resourceClass()->id();
-                $datelit = $subjectResource->value($orderEventsPropTerm, ['literal']);
-                preg_match('/\d\d\d\d?/', $datelit, $date);
-                $dateindex = empty($date) ? 0 : 100*$date[0] ;// ex: 194400 for 1944
-                if (in_array($subjectResourceClassId, array_keys($eventClassId2categ))){
-                    //manage case with no date. Objective: basic order by order of the displayedEventsMapping : conception then production then modification, then etc.
-                    $propTerm = $this->api()->searchOne('properties', ['id'=>$propID])->getContent()->term();
-                    while (key_exists($dateindex, $foundEvents)) {++$dateindex; };//if key allready in use (same date); then go to next index (194401 for example)
-                    $foundEvents[$propTerm] = $subjectResource;
-                    $orderedEvents[$dateindex] = $subjectResource;
-                } else  {
-                    while (key_exists($dateindex, $otherLinkedItems)) {++$dateindex; };
-                    $otherLinkedItems[$dateindex] = $subjectResource;
-                };
-            }
-            
-        };
-    }  
+    foreach ($subjectValues as $subjectValue) {
+        $propID = $subjectValue['property_id'];
+        if (in_array($propID, $skippedPropsIdList)) break;//the prop is not among the forbidden ones
+        if(++$j > $max_itemPerTerm) break;//max item analyzed per term
+        $subjectResource = $subjectValue['val']->resource();
+        // echo json_encode($subjectValue);
+        if ($subjectResource->getControllerName($subjectResource) === 'item' && $subjectValue['val']->isPublic()){//if the linked item is not a media (through RightsHolder property) and the lin property is public
+            $subjectResourceClassId = $subjectResource->resourceClass()->id();
+            $dateindex = getDateIndex($subjectResource, $orderEventsPropTerm);
+            if (in_array($subjectResourceClassId, array_keys($eventClassId2categ))){
+                //manage case with no date. Objective: basic order by order of the displayedEventsMapping : conception then production then modification, then etc.
+                $propTerm = $this->api()->searchOne('properties', ['id'=>$propID])->getContent()->term();
+                while (key_exists($dateindex, $foundEvents)) {++$dateindex; };//if key allready in use (same date); then go to next index (194401 for example)
+                $foundEvents[$propTerm] = $subjectResource;
+                $orderedEvents[$dateindex] = $subjectResource;
+            } else  {
+                while (key_exists($dateindex, $otherLinkedItems)) {++$dateindex; };
+                $otherLinkedItems[$dateindex] = $subjectResource;
+            };
+        }
+    };
 };
 if (isset($orderedEvents)) {
     ksort($orderedEvents);
