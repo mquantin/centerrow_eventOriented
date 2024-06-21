@@ -5,6 +5,10 @@ Compatible with omeka-S v4.x.x
 
 It is related to the feature asked in the omeka forum: https://forum.omeka.org/t/feature-request-show-some-linked-items-in-public-item-page/15914
 
+## Requirements
+A forked version of omeka-s v4.1 : https://github.com/mquantin/omeka-s/tree/v4.1
+Few changes, only some new features. Commits are clear to read. some PR are approved, some other in discussion. 
+
 ## Content
 This fork modify the item page.
 
