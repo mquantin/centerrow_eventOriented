@@ -16,11 +16,20 @@ Indeed, in that case the lifecycle of a tangible item is stored in "events" item
 e.g. MonaLisa painting is a tangible item (with material, dimension, etc.), the production of MonaLisa is another item (event: with time-span, technique, involved people, etc).
 
 ### Render
-
 Displays on the same public page of a tangible item, the physical metadata (material, dimensions, etc.) 
 and some related items data (production metadata, location metadata).
 
+Live example: https://epotec.univ-nantes.fr/s/ccinsn/item/300
+
 ![screenshot render](screenshot.png)
+
+### Other improvements
+- picture copyright is displayed in lightGallery below the picture
+- a "read more" functionality hide long text block, so to be more pleasant in the page
+- css changes
+
+
+
 
 ## Copyright
 Center Row is Copyright © 2016-present Corporation for Digital Scholarship, Vienna, Virginia, USA http://digitalscholar.org  
