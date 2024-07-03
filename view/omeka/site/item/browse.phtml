@@ -56,7 +56,7 @@ $query = $this->params()->fromQuery();
     <?php foreach ($items as $item): ?>
     <?php
     $heading = $headingTerm ? $item->value($headingTerm, ['default' => $translate('[Untitled]'), 'lang' => $valueLang]) : $item->displayTitle(null, $valueLang);
-    $body = $bodyTerm ? $item->value($bodyTerm, ['lang' => $valueLang]) : $item->displayDescription(null, $valueLang);
+    $body = $bodyTerm ? $item->value($bodyTerm, ['lang' => $valueLang]) : '';
     $linkContent = sprintf('%s<span class="resource-name">%s</span>',
             $thumbnail($item, 'medium', ['class' => 'thumbnail']),
             $escape($heading));
