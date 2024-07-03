@@ -879,7 +879,7 @@ textarea{
 }
 @media screen{
   .browse .resource img{
-      max-width:100%
+      max-width:200px
   }
 }
 @media screen{
